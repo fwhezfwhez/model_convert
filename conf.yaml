@@ -1,0 +1,3 @@
+dataSource: host=localhost port=5432 user=postgres dbname=test sslmode=disable password=123
+tableNames: animal
+exportTo: model.go
