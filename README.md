@@ -110,7 +110,7 @@ func main() {
     fmt.Println(model_convert.AddJSONFormTag(
         `
           type UserInfo struct {
-               Id        int
+            Id        int
             UserId    int
             OpenId    string
             UnionId   string
