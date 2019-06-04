@@ -62,7 +62,7 @@ type MessageInfo struct{
 }
 ```
 
-## 2.1 Gorm-postgres table to model
+#### 2.2 Gorm-postgres table to model
 
 ```go
 package main
@@ -96,7 +96,7 @@ func (o UserInfo) TableName() string {
 }
 ```
 
-## 2.3 Add json,form tag for go model
+#### 2.3 Add json,form tag for go model
 Only support under-line style `AaBb -> aa_bb`
 ```go
 package main
