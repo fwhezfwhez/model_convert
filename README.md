@@ -9,7 +9,7 @@ model-convert is used for transfer all kinds of structs
 - [Declaration](#declaration)
 - [1. Start](#1-start)
 - [2. Stable cases](#2-stable-cases)
-    - [2.1 xml to go model](#21-xml-to-go-model)
+    - [2.1 Xml to go model](#21-xml-to-go-model)
     - [2.2 Gorm-postgres table to model](#22-gorm-postgres-table-to-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
 
@@ -26,7 +26,7 @@ model-convert is used for transfer all kinds of structs
 ## 2. Stable cases
 Most cases are developing.However, only when specific requirements are met with, I will upgrade requiring functions. Here are stable use cases, it will be taken care of when project are updating.
 
-#### 2.1 xml to go model
+#### 2.1 Xml to go model
 ```go
 package main
 
