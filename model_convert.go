@@ -19,7 +19,6 @@ type ModelConvert struct {
 	Db         *gorm.DB
 	PrintModel bool
 	TagFlag    int
-	HasTag     bool
 }
 
 // init modelConvert's dataSource
@@ -27,13 +26,21 @@ func (mc *ModelConvert) Init(dialect, dataSource string, printModel bool) error 
 	var er error
 	mc.Db, er = gorm.Open(dialect, dataSource)
 	mc.PrintModel = printModel
-	mc.HasTag = true
 	return er
 }
 
 // mc.SetFlag(model_convert.JSON | model_convert.GORM | model_convert.FORM)
 func (mc *ModelConvert) SetFlags(flag int) {
 	mc.TagFlag = flag
+}
+func(mc ModelConvert) HasTag()bool{
+	ok1 := mc.TagFlag & JSON !=0
+	ok2 := mc.TagFlag & GORM !=0
+	ok3 :=mc.TagFlag & FORM !=0
+	if !ok1 && !ok2 && !ok3{
+		return false
+	}
+	return true
 }
 
 // close db
@@ -42,14 +49,14 @@ func (mc *ModelConvert) Destroy() {
 }
 
 // point: 指定tag名，指定tag种类,若未指定表，则生成该数据库内所有表model
-func (mc *ModelConvert) Generate(tables []string) (string, error) {
+func (mc *ModelConvert) Generate(tables ...string) (string, error) {
 	// 弱表未指定，则找到该数据库里所有表
 	if tables == nil || len(tables) == 0 {
 		tables = make([]string, 0, 5)
 		tableSql := `
 			SELECT
-				c.relkind AS type,
-				c.relname AS table_name
+				-- c.relkind AS type,
+				c.relname::varchar AS table_name
 			FROM pg_class c
 			JOIN ONLY pg_namespace n ON n.oid = c.relnamespace
 			WHERE n.nspname = 'public'
@@ -57,11 +64,10 @@ func (mc *ModelConvert) Generate(tables []string) (string, error) {
 			ORDER BY c.relname
 		`
 		mc.Db.SingularTable(true)
-		var count int
-		if e := mc.Db.Raw(tableSql).Find(&tables).Count(&count).Error; e != nil {
+		if e := mc.Db.Raw(tableSql).Pluck("table_name",&tables).Error; e != nil {
 			return "", errorx.New(e)
 		}
-		if count == 0 {
+		if len(tables) == 0 {
 			return "", errorx.NewFromString("未在该dataSource下找到表，表数量为0")
 		}
 	}
@@ -113,7 +119,7 @@ func (mc *ModelConvert) Generate(tables []string) (string, error) {
 		if e := mc.Db.Raw(FindColumnsSql, tableName).Find(&columns).Error; e != nil {
 			return "", errorx.New(e)
 		}
-		if ! mc.HasTag {
+		if ! mc.HasTag() {
 			for _, column := range columns {
 				line = fmt.Sprintf("    %s  %s\n", UnderLineToHump(column.ColumnName), typeConvert(column.ColumnType))
 				columnString = columnString + line
@@ -131,7 +137,7 @@ func (mc *ModelConvert) Generate(tables []string) (string, error) {
 				if mc.TagFlag & FORM !=0 {
 					line += fmt.Sprintf("form:\"column:%s\" ", column.ColumnName)
 				}
-				line += "`"
+				line += "`\n"
 				columnString = columnString + line
 			}
 
@@ -256,12 +262,12 @@ func TableToStructWithTag(dataSource string, tableName string) string {
 	columns := FindColumns(dataSource, tableName)
 	for _, column := range columns {
 
-		tmp = fmt.Sprintf("    %s  %s    `gorm:\"column:%s\" json:\"%s\" form:\"%s\"`\n",
+		tmp = fmt.Sprintf("    %s  %s    `gorm:\"column:%s;default:\" json:\"%s\" form:\"%s\"`\n",
 			UnderLineToHump(column.ColumnName), typeConvert(column.ColumnType), column.ColumnName, column.ColumnName, column.ColumnName)
 		columnString = columnString + tmp
 	}
 
-	rs := fmt.Sprintf("type %s struct{\n%s}\n\n", UnderLineToHump(HumpToUnderLine(tableName)), columnString)
+	rs := fmt.Sprintf("type %s struct{\n%s}\n\nfunc (o %s) TableName() string {\n    return \"%s\" \n}\n", UnderLineToHump(HumpToUnderLine(tableName)), columnString, UnderLineToHump(tableName), tableName)
 	return rs
 }
 
