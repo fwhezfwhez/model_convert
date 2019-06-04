@@ -6,12 +6,11 @@ model-convert is used for transfer all kinds of structs
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [model-convert](#model-convert)
 - [Declaration](#declaration)
-- [1. start](#1-start)
-- [2. stable cases](#2-stable-cases)
+- [1. Start](#1-start)
+- [2. Stable cases](#2-stable-cases)
     - [2.1 xml to go model](#21-xml-to-go-model)
-    - [2.2 gorm-postgres table to model](#22-gorm-postgres-table-to-model)
+    - [2.2 Gorm-postgres table to model](#22-gorm-postgres-table-to-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
