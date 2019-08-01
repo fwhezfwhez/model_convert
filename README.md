@@ -12,6 +12,7 @@ model-convert is used for transfer all kinds of structs
     - [2.1 xml to go model](#21-xml-to-go-model)
     - [2.2 Gorm-postgres table to model](#22-gorm-postgres-table-to-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
+    - [2.4 Go model transfer to protobuf3](#24-go-model-transfer-to-protobuf3)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -136,5 +137,63 @@ type UserInfo struct {
     HeaderUrl string `json:"header_url" form:"header_url"`
     Sex       int    `json:"sex" form:"sex"`
     GameId    int    `json:"game_id" form:"game_id"`
+}
+```
+#### 2.4 Go model transfer to protobuf3
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/fwhezfwhez/model_convert"
+)
+
+func main() {
+	type U struct {
+		Username string
+		Password string
+		Age      int
+		Id       int32
+		Config   json.RawMessage
+	}
+	ps, setM, setP := model_convert.GoModelToProto3(U{})
+	fmt.Println(ps)
+	fmt.Println(setM)
+	fmt.Println(setP)
+}
+
+```
+
+output:
+
+```go
+message U {
+    string username =1;
+    string password =2;
+    int32 age =3;
+    int32 id =4;
+    bytes config =5;
+}
+
+func SetModelU(src pb.U) model.U {
+    var dest model.U
+    dest.Username = src.Username
+    dest.Password = src.Password
+    dest.Age = src.Age
+    dest.Id = src.Id
+    dest.Config = src.Config
+    return dest
+}
+
+
+func SetProtoU(src model.U) pb.U {
+    var dest pb.U
+    dest.Username = src.Username
+    dest.Password = src.Password
+    dest.Age = src.Age
+    dest.Id = src.Id
+    dest.Config = src.Config
+    return dest
 }
 ```
