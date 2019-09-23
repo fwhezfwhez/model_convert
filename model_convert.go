@@ -275,6 +275,8 @@ func TableToStructWithTag(dataSource string, tableName string) string {
     You can get them by:
       - go get github.com/fwhezfwhez/errorx
       - go get github.com/garyburd/redigo/redis
+
+    To fulfill redis part, don't forget to set its RedisKey(), it's marked TODO already. 
 */
 `
 
@@ -289,7 +291,7 @@ func (o ${structName}) GetFromRedis(conn redis.Conn) error {
 		return errorx.NewFromString("object ${structName} has not set redis key yet")
 	}
 	buf,e:= redis.Bytes(conn.Do("GET", o.RedisKey()))
-	if e!=nil {
+	if e!=nil && e != redis.ErrNil {
 		return errorx.Wrap(e)
 	}
 	e = json.Unmarshal(buf, &o)
