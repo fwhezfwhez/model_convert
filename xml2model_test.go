@@ -6,6 +6,7 @@ import (
 )
 
 func TestXMLToModel(t *testing.T) {
+	fmt.Println(233/100*100)
 	fmt.Println(XMLToModel(
 		`
             <xml>
