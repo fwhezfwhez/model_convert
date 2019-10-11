@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package userProto;
+
+message UserInfo {
+    repeated ArrayElement arr =1;
+    bytes config2 =2;
+    bytes config =3;
+    string username =4;
+    string password =5;
+    int32 age =6;
+    int32 id =7;
+}
+message ArrayElement {}
