@@ -204,6 +204,29 @@ func SetProtoU(src model.U) pb.U {
 This provides auto generate api crud http code.Supporting only gin+gorm.
 
 ###### 2.5.1 list
+Note:
+```go
+// Generate list api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// "github.com/model_convert/util"
+// you can get 'errorx.Wrap(e)','util.ToLimitOffset()', 'util.GenerateOrderBy()' above
+//
+// Replacement optional as:
+// - ${page} "page"
+// - ${size} "size"
+// - ${order_by} ""
+// - ${util_pkg} "util"
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e)"
+// - ${jump_fields}, "password,pw"
+// - ${layout}, "2006-01-02 15:04:03"
+// - ${time_zone} "time.Local"
+func model_convert.GenerateListAPI()
+```
+
 ```go
 package main
 import (
