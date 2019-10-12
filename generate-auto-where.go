@@ -120,6 +120,8 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 // you can get 'errorx.Wrap(e)','util.ToLimitOffset()', 'util.GenerateOrderBy()' above
 //
 // Replacement optional as:
+// - ${page} "page"
+// - ${size} "size"
 // - ${util_pkg} "util"
 // - ${db_instance} "db.DB"
 // - ${handler_name} "HTTPListUser"
@@ -133,6 +135,14 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 		replacement = []map[string]string{
 			map[string]string{},
 		}
+	}
+
+	if replacement[0]["${page}"] == "" {
+		replacement[0]["${page}"] = "page"
+	}
+
+	if replacement[0]["${size}"] == "" {
+		replacement[0]["${size}"] = "size"
 	}
 
 	if replacement[0]["${db_instance}"] == "" {
@@ -195,6 +205,10 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 	var resultf, result string
 	resultf = queryArgsStatement + commonStatementf
 	result = strings.Replace(resultf, "${model}", replacement[0]["${model}"], -1)
+
+	result = strings.Replace(result, "${page}", replacement[0]["${page}"], -1)
+	result = strings.Replace(result, "${size}", replacement[0]["${size}"], -1)
+
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
 	result = strings.Replace(result, "${util_pkg}", replacement[0]["${util_pkg}"], -1)
 

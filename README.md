@@ -235,36 +235,36 @@ func HTTPListLingqianOrder(c *gin.Context) {
     var engine = db.DB.Model(&payModel.LingqianOrder{})
 
     id := c.DefaultQuery("id", "")
-    if id!= "" {
+    if id != "" {
         engine = engine.Where("id != ?", id)
     }
     orderId := c.DefaultQuery("order_id", "")
-    if orderId!= "" {
+    if orderId != "" {
         engine = engine.Where("order_id != ?", orderId)
     }
     gameId := c.DefaultQuery("game_id", "")
-    if gameId!= "" {
+    if gameId != "" {
         engine = engine.Where("game_id != ?", gameId)
     }
     userId := c.DefaultQuery("user_id", "")
-    if userId!= "" {
+    if userId != "" {
         engine = engine.Where("user_id != ?", userId)
     }
     openId := c.DefaultQuery("open_id", "")
-    if openId!= "" {
+    if openId != "" {
         engine = engine.Where("open_id != ?", openId)
     }
     state := c.DefaultQuery("state", "")
-    if state!= "" {
+    if state != "" {
         engine = engine.Where("state != ?", state)
     }
     response := c.DefaultQuery("response", "")
-    if response!= "" {
+    if response != "" {
         engine = engine.Where("response != ?", response)
     }
 
-    page := c.DefaultQuery("${page}", "1")
-    size := c.DefaultQuery("${size}", "20")
+    page := c.DefaultQuery("page", "1")
+    size := c.DefaultQuery("size", "20")
     orderBy := c.DefaultQuery("${order_by}", "")
     var count int
     if e:= engine.Count(&count).Error; e!=nil {
