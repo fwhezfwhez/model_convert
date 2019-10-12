@@ -122,6 +122,7 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 // Replacement optional as:
 // - ${page} "page"
 // - ${size} "size"
+// - ${order_by} ""
 // - ${util_pkg} "util"
 // - ${db_instance} "db.DB"
 // - ${handler_name} "HTTPListUser"
@@ -174,7 +175,7 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 	commonStatementf := `
     page := c.DefaultQuery("${page}", "1")
     size := c.DefaultQuery("${size}", "20")
-    orderBy := c.DefaultQuery("${order_by}", "")
+    orderBy := c.DefaultQuery("order_by", "${order_by}")
     
     var count int
     if e:= engine.Count(&count).Error; e!=nil {
@@ -208,6 +209,7 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 
 	result = strings.Replace(result, "${page}", replacement[0]["${page}"], -1)
 	result = strings.Replace(result, "${size}", replacement[0]["${size}"], -1)
+	result = strings.Replace(result, "${order_by}", replacement[0]["${order_by}"], -1)
 
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
 	result = strings.Replace(result, "${util_pkg}", replacement[0]["${util_pkg}"], -1)
