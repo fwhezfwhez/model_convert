@@ -265,7 +265,7 @@ func HTTPListLingqianOrder(c *gin.Context) {
 
     page := c.DefaultQuery("page", "1")
     size := c.DefaultQuery("size", "20")
-    orderBy := c.DefaultQuery("${order_by}", "")
+    orderBy := c.DefaultQuery("order_by", "")
     var count int
     if e:= engine.Count(&count).Error; e!=nil {
         common.SaveError(e)
