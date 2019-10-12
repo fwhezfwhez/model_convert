@@ -69,11 +69,6 @@ func TestTableToStructWithTag(t *testing.T) {
 // add json and form for a go model
 func TestAddJSONFormTag(t *testing.T) {
 	fmt.Println(AddJSONFormTag(`
-		type NotifyNormal struct {
-	Url      string
-	Data     json.RawMessage
-	Interval string
-}
 	`))
 }
 

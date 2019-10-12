@@ -16,6 +16,7 @@ model-convert is used for transfer all kinds of structs
     - [2.4 Go model transfer to protobuf3](#24-go-model-transfer-to-protobuf3)
     - [2.5 Http restful api](#25-http-restful-api)
         - [2.5.1 list](#251-list)
+        - [2.5.2 get-one](#252-get-one)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -317,3 +318,59 @@ func HTTPListLingqianOrder(c *gin.Context) {
 }
 ```
 
+###### 2.5.2 get-one
+```go
+package main
+import (
+    "encoding/json"
+    "fmt"
+    "github.com/fwhezfwhez/model_convert"
+)
+func main() {
+	type VxTemplateUser struct {
+		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+
+		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
+		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	}
+
+	rs := model_convert.GenerateGetOneAPI(VxTemplateUser{}, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPGetOneLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+	})
+	fmt.Println(rs)
+}
+```
+Output:
+```go
+func HTTPGetOneLingqianOrder(c *gin.Context) {
+    id := c.Param("id")
+    idInt, e := strconv.Atoi(id)
+    if e!=nil {
+        c.JSON(400, gin.H{"message": fmt.Sprintf("param 'id' requires int but got %s", id)})
+        return
+    }
+    var count int
+    if e:=db.DB.Model(&payModel.LingqianOrder{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    if count ==0 {
+        c.JSON(200, gin.H{"message": fmt.Sprintf("id '%s' record not found", id)})
+        return
+    }
+    var instance payModel.LingqianOrder
+    if e:=db.DB.Model(&payModel.LingqianOrder{}).Where("id=?", id).First(&instance).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success", "data": instance})
+}
+
+```

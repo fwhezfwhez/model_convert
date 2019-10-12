@@ -214,7 +214,6 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
 	result = strings.Replace(result, "${util_pkg}", replacement[0]["${util_pkg}"], -1)
 
-
 	var tmpf = `
 // Auto generate by github.com/fwhezfwhez/model_convert.GenerateList().
 func ${handler_name}(c *gin.Context) {
@@ -236,4 +235,86 @@ func ${handler_name}(c *gin.Context) {
 	tmp = strings.Replace(tmp, "\n\n}", "\n}", -1)
 	tmp = strings.Replace(tmp, "\n    \n}", "\n}", -1)
 	return tmp
+}
+
+// Generate list api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e)"
+func GenerateGetOneAPI(src interface{}, replacement ...map[string]string) string {
+	if len(replacement) == 0 {
+		replacement = []map[string]string{
+			map[string]string{},
+		}
+	}
+	handleDefault(src, replacement[0])
+	var resultf = `
+func ${handler_name}(c *gin.Context) {
+    id := c.Param("id")
+    idInt, e := strconv.Atoi(id)
+    if e!=nil {
+        c.JSON(400, gin.H{"message": fmt.Sprintf("param 'id' requires int but got %s", id)})
+        return
+    }
+    var count int
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    if count ==0 {
+        c.JSON(200, gin.H{"message": fmt.Sprintf("id '%s' record not found", id)})
+        return
+    }
+    var instance ${model}
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).First(&instance).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success", "data": instance})
+}
+`
+	result := strings.Replace(resultf, "${handler_name}", replacement[0]["${handler_name}"], -1)
+	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
+	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
+	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+	return result
+}
+
+func handleDefault(src interface{}, replacement map[string]string) {
+
+	if replacement["${page}"] == "" {
+		replacement["${page}"] = "page"
+	}
+
+	if replacement["${size}"] == "" {
+		replacement["${size}"] = "size"
+	}
+
+	if replacement["${db_instance}"] == "" {
+		replacement["${db_instance}"] = "db.DB"
+	}
+
+	if replacement["${util_pkg}"] == "" {
+		replacement["${util_pkg}"] = "util"
+	}
+
+	if replacement["${handler_name}"] == "" {
+		replacement["${handler_name}"] = "HTTPListUser"
+	}
+
+	vType := reflect.TypeOf(src)
+	if replacement["${model}"] == "" {
+		replacement["${model}"] = vType.String()
+	}
+
+	if replacement["${handle_error}"] == "" {
+		replacement["${handle_error}"] = "log.Println(e)"
+	}
 }
