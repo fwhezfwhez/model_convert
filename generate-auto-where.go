@@ -1,6 +1,7 @@
 package model_convert
 
 import (
+	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -110,4 +111,102 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 	var result string
 	result = strings.Replace(format, "${handle}", handle, -1)
 	return result
+}
+
+// Generate list api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// "github.com/model_convert/util"
+// you can get 'errorx.Wrap(e)','util.ToLimitOffset()', 'util.GenerateOrderBy()' above
+//
+// Replacement optional as:
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e)"
+func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[string]string) string {
+	if len(replacement) == 0 {
+		replacement = []map[string]string{
+			map[string]string{},
+		}
+	}
+
+	if replacement[0]["${db_instance}"] == "" {
+		replacement[0]["${db_instance}"] = "db.DB"
+	}
+
+	if replacement[0]["${handler_name}"] == "" {
+		replacement[0]["${handler_name}"] = "HTTPListUser"
+	}
+
+	vType := reflect.TypeOf(src)
+	if replacement[0]["${model}"] == "" {
+		replacement[0]["${model}"] = vType.String()
+	}
+
+	if replacement[0]["${handle_error}"] == "" {
+		replacement[0]["${handle_error}"] = "log.Println(e)"
+	}
+	var copyMap = make(map[string]string)
+	for k, v := range replacement[0] {
+		copyMap[k] = v
+	}
+
+	queryArgsStatement := GenerateListWhere(src, withListArgs, []map[string]string{copyMap}...)
+	commonStatementf := `
+    page := c.DefaultQuery("${page}", "1")
+    size := c.DefaultQuery("${size}", "20")
+    orderBy := c.DefaultQuery("${order_by}", "")
+    
+    var count int
+    if e:= engine.Count(&count).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    var list = make([]${model}, 0, 20)
+    if count == 0 {
+        c.JSON(200, gin.H{"message": "success", "count": 0, "data": list})
+        return
+    }
+
+    limit, offset := util.ToLimitOffset(size, page, count)
+    engine = engine.Limit(limit).Offset(offset)
+
+    if orderBy != "" {
+        engine = engine.Order(util.GenerateOrderBy(orderBy))
+    }
+
+    if e:= engine.Find(&list).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success", "count": 0, "data": list})
+`
+	var resultf, result string
+	resultf = queryArgsStatement + commonStatementf
+	result = strings.Replace(resultf, "${model}", replacement[0]["${model}"], -1)
+	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+
+	var tmpf = `
+func ${handler_name}(c *gin.Context) {
+    var engine = ${db_instance}.Model(&${model}{})
+    ${result}
+}
+`
+	tmp := strings.Replace(tmpf, "${handler_name}", replacement[0]["${handler_name}"], -1)
+	log.Println(replacement[0]["db_instance"])
+	log.Println(replacement[0])
+	log.Println(replacement[0]["db_instance"] == "db.DB")
+	tmp = strings.Replace(tmp, "${db_instance}", replacement[0]["${db_instance}"], -1)
+	tmp = strings.Replace(tmp, "${model}", replacement[0]["${model}"], -1)
+	tmp = strings.Replace(tmp, "${result}", result, -1)
+
+	// format
+	tmp = strings.Replace(tmp, "\n    \n", "\n", -1)
+	tmp = strings.Replace(tmp, "\n\n", "\n", -1)
+	tmp = strings.Replace(tmp, "\n\n}", "\n}", -1)
+	tmp = strings.Replace(tmp, "\n    \n}", "\n}", -1)
+	return tmp
 }
