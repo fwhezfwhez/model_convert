@@ -1,4 +1,5 @@
 ## model-convert
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/fwhezfwhez/model_convert)
 
 model-convert is used for transfer all kinds of structs
 
@@ -200,6 +201,8 @@ func SetProtoU(src model.U) pb.U {
 }
 ```
 #### 2.5 Http restful api
+This provides auto generate api crud http code.Supporting only gin+gorm.
+
 ###### 2.5.1 list
 ```go
 package main
