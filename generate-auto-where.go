@@ -215,7 +215,7 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 	result = strings.Replace(result, "${util_pkg}", replacement[0]["${util_pkg}"], -1)
 
 	var tmpf = `
-// Auto generate by github.com/fwhezfwhez/model_convert.GenerateList().
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateListAPI().
 func ${handler_name}(c *gin.Context) {
     var engine = ${db_instance}.Model(&${model}{})
     ${result}
@@ -254,6 +254,7 @@ func GenerateGetOneAPI(src interface{}, replacement ...map[string]string) string
 	}
 	handleDefault(src, replacement[0])
 	var resultf = `
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateGetOneAPI().
 func ${handler_name}(c *gin.Context) {
     id := c.Param("id")
     idInt, e := strconv.Atoi(id)

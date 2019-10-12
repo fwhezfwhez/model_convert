@@ -319,6 +319,20 @@ func HTTPListLingqianOrder(c *gin.Context) {
 ```
 
 ###### 2.5.2 get-one
+Note:
+```go
+// Generate list api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e)"
+func GenerateGetOneAPI()
+```
+Usage:
 ```go
 package main
 import (
@@ -347,6 +361,7 @@ func main() {
 ```
 Output:
 ```go
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateGetOneAPI().
 func HTTPGetOneLingqianOrder(c *gin.Context) {
     id := c.Param("id")
     idInt, e := strconv.Atoi(id)
