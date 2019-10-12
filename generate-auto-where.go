@@ -63,7 +63,7 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
     endTimeStr := c.DefaultQuery("end_time", "")
 
     var start,end time.Time
-    if startTimeStr != "" && endTimeStr !="" {
+    if startTimeStr != "" && endTimeStr != "" {
         var e error
         start, e = time.ParseLocation("${layout}", startTimeStr, ${time_zone})
         if e!=nil {
@@ -98,7 +98,7 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 			}
 			tmp := `
     ${field_name} := c.DefaultQuery("${tag_name}", "")
-    if ${field_name}!= "" {
+    if ${field_name} != "" {
         engine = engine.Where("${tag_name} != ?", ${field_name})
     }
 `
@@ -120,10 +120,14 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 // you can get 'errorx.Wrap(e)','util.ToLimitOffset()', 'util.GenerateOrderBy()' above
 //
 // Replacement optional as:
+// - ${util_pkg} "util"
 // - ${db_instance} "db.DB"
 // - ${handler_name} "HTTPListUser"
 // - ${model} "model.User"
 // - ${handle_error} "fmt.Println(e)"
+// - ${jump_fields}, "password,pw"
+// - ${layout}, "2006-01-02 15:04:03"
+// - ${time_zone} "time.Local"
 func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
@@ -133,6 +137,10 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 
 	if replacement[0]["${db_instance}"] == "" {
 		replacement[0]["${db_instance}"] = "db.DB"
+	}
+
+	if replacement[0]["${util_pkg}"] == "" {
+		replacement[0]["${util_pkg}"] = "util"
 	}
 
 	if replacement[0]["${handler_name}"] == "" {
@@ -170,11 +178,11 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
         return
     }
 
-    limit, offset := util.ToLimitOffset(size, page, count)
+    limit, offset := ${util_pkg}.ToLimitOffset(size, page, count)
     engine = engine.Limit(limit).Offset(offset)
 
     if orderBy != "" {
-        engine = engine.Order(util.GenerateOrderBy(orderBy))
+        engine = engine.Order(${util_pkg}.GenerateOrderBy(orderBy))
     }
 
     if e:= engine.Find(&list).Error; e!=nil {
@@ -188,8 +196,11 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 	resultf = queryArgsStatement + commonStatementf
 	result = strings.Replace(resultf, "${model}", replacement[0]["${model}"], -1)
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+	result = strings.Replace(result, "${util_pkg}", replacement[0]["${util_pkg}"], -1)
+
 
 	var tmpf = `
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateList().
 func ${handler_name}(c *gin.Context) {
     var engine = ${db_instance}.Model(&${model}{})
     ${result}

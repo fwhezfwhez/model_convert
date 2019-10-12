@@ -13,6 +13,8 @@ model-convert is used for transfer all kinds of structs
     - [2.2 Gorm-postgres table to model](#22-gorm-postgres-table-to-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
     - [2.4 Go model transfer to protobuf3](#24-go-model-transfer-to-protobuf3)
+    - [2.5 Http restful api](#25-http-restful-api)
+        - [2.5.1 list](#251-list)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -197,3 +199,95 @@ func SetProtoU(src model.U) pb.U {
     return dest
 }
 ```
+#### 2.5 Http restful api
+###### 2.5.1 list
+```go
+package main
+import (
+  	"encoding/json"
+  	"fmt"
+  	"github.com/fwhezfwhez/model_convert"
+)
+
+func main() {
+	type LingqianOrder struct {
+		Id       int             `gorm:"column:id;default:" json:"id" form:"id"`
+		OrderId  string          `gorm:"column:order_id;default:" json:"order_id" form:"order_id"`
+		GameId   int             `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId   int             `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId   string          `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+		State    int             `gorm:"column:state;default:" json:"state" form:"state"`
+		Request  json.RawMessage `gorm:"column:request;default:" json:"request" form:"request"`
+		Response string          `gorm:"column:response;default:" json:"response" form:"response"`
+	}
+
+	fmt.Println(model_convert.GenerateListAPI(LingqianOrder{}, false, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPListLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+	}))
+}
+```
+Output
+```go
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateList().
+func HTTPListLingqianOrder(c *gin.Context) {
+    var engine = db.DB.Model(&payModel.LingqianOrder{})
+
+    id := c.DefaultQuery("id", "")
+    if id!= "" {
+        engine = engine.Where("id != ?", id)
+    }
+    orderId := c.DefaultQuery("order_id", "")
+    if orderId!= "" {
+        engine = engine.Where("order_id != ?", orderId)
+    }
+    gameId := c.DefaultQuery("game_id", "")
+    if gameId!= "" {
+        engine = engine.Where("game_id != ?", gameId)
+    }
+    userId := c.DefaultQuery("user_id", "")
+    if userId!= "" {
+        engine = engine.Where("user_id != ?", userId)
+    }
+    openId := c.DefaultQuery("open_id", "")
+    if openId!= "" {
+        engine = engine.Where("open_id != ?", openId)
+    }
+    state := c.DefaultQuery("state", "")
+    if state!= "" {
+        engine = engine.Where("state != ?", state)
+    }
+    response := c.DefaultQuery("response", "")
+    if response!= "" {
+        engine = engine.Where("response != ?", response)
+    }
+
+    page := c.DefaultQuery("${page}", "1")
+    size := c.DefaultQuery("${size}", "20")
+    orderBy := c.DefaultQuery("${order_by}", "")
+    var count int
+    if e:= engine.Count(&count).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    var list = make([]payModel.LingqianOrder, 0, 20)
+    if count == 0 {
+        c.JSON(200, gin.H{"message": "success", "count": 0, "data": list})
+        return
+    }
+    limit, offset := util.ToLimitOffset(size, page, count)
+    engine = engine.Limit(limit).Offset(offset)
+    if orderBy != "" {
+        engine = engine.Order(util.GenerateOrderBy(orderBy))
+    }
+    if e:= engine.Find(&list).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success", "count": 0, "data": list})
+}
+```
+
