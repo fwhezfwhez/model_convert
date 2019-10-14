@@ -324,7 +324,7 @@ func HTTPListLingqianOrder(c *gin.Context) {
 ###### 2.5.2 get-one
 Note:
 ```go
-// Generate list api code.
+// Generate get-one api code.
 // To completely use these code, you might import:
 // "github.com/fwhezfwhez/errorx"
 // you can get 'errorx.Wrap(e)' above
