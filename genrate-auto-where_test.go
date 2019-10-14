@@ -58,3 +58,62 @@ func TestGenerateGetOneAPI(t *testing.T) {
 	})
 	fmt.Println(rs)
 }
+
+
+func TestGenerateAddOneAPI(t *testing.T) {
+	type VxTemplateUser struct {
+		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+
+		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
+		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	}
+
+	rs :=GenerateAddOneAPI(VxTemplateUser{}, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPAddLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+	})
+	fmt.Println(rs)
+}
+
+func TestGenerateDeleteOneAPI(t *testing.T) {
+	type VxTemplateUser struct {
+		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+
+		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
+		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	}
+
+	rs := GenerateDeleteOneAPI(VxTemplateUser{}, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPDeleteLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+	})
+	fmt.Println(rs)
+}
+
+func TestGenerateUpdateOneAPI(t *testing.T) {
+	type VxTemplateUser struct {
+		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+
+		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
+		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	}
+
+	rs := GenerateUpdateOneAPI(VxTemplateUser{}, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPDeleteLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+		"${args_forbid_update}": "UserId, game_id",
+	})
+	fmt.Println(rs)
+}

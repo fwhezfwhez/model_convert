@@ -17,6 +17,9 @@ model-convert is used for transfer all kinds of structs
     - [2.5 Http restful api](#25-http-restful-api)
         - [2.5.1 list](#251-list)
         - [2.5.2 get-one](#252-get-one)
+        - [2.5.3 add-one](#253-add-one)
+        - [2.5.4 delete-one](#254-delete-one)
+        - [2.5.5 update-one](#255-update-one)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -388,4 +391,211 @@ func HTTPGetOneLingqianOrder(c *gin.Context) {
     c.JSON(200, gin.H{"message": "success", "data": instance})
 }
 
+```
+
+###### 2.5.3 add-one
+Note:
+```go
+// Generate add one api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e, string(debug.Stack()))"
+func GenerateAddOneAPI()
+```
+```go
+package main
+import (
+    "encoding/json"
+    "fmt"
+    "github.com/fwhezfwhez/model_convert"
+)
+func main() {
+	type VxTemplateUser struct {
+		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+
+		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
+		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	}
+
+	rs := model_convert.GenerateAddOneAPI(VxTemplateUser{}, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPAddLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+	})
+	fmt.Println(rs)
+}
+```
+Output:
+```go
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateAddOneAPI().
+func HTTPAddLingqianOrder (c *gin.Context) {
+    var param payModel.LingqianOrder
+    if e := c.Bind(&param); e!=nil {
+        c.JSON(400, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+
+    if e:=db.DB.Model(&payModel.LingqianOrder{}).Create(&param).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success", "data": param})
+}
+```
+
+###### 2.5.4 delete-one
+
+Note:
+```go
+```
+```go
+package main
+import (
+    "encoding/json"
+    "fmt"
+    "github.com/fwhezfwhez/model_convert"
+)
+func main() {
+	type VxTemplateUser struct {
+		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+
+		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
+		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	}
+
+	rs := GenerateDeleteOneAPI(VxTemplateUser{}, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPDeleteLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+	})
+	fmt.Println(rs)
+}
+```
+Output:
+```go
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateDeleteOneAPI().
+func HTTPDeleteLingqianOrder(c *gin.Context) {
+    id := c.Param("id")
+    idInt, e := strconv.Atoi(id)
+    if e!=nil {
+        c.JSON(400, gin.H{"message": fmt.Sprintf("param 'id' requires int but got %s", id)})
+        return
+    }
+    var count int
+    if e:=db.DB.Model(&payModel.LingqianOrder{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    if count ==0 {
+        c.JSON(200, gin.H{"message": fmt.Sprintf("id '%s' record not found", id)})
+        return
+    }
+    var instance payModel.LingqianOrder
+    if e:=db.DB.Model(&payModel.LingqianOrder{}).Where("id=?", id).Delete(&instance).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success"})
+}
+```
+
+###### 2.5.5 update-one
+
+Note:
+```go
+// Generate update one api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// | field optional | default value | example value
+// - ${args_forbid_update} | "" | "user_id, game_id"
+// - ${db_instance} "db.DB" | "db.DB"
+// - ${handler_name} "HTTPListUser" | HTTPUpdateUser |
+// - ${model} "model.User" | "payModel.Order"
+// - ${handle_error} "fmt.Println(e, string(debug.Stack()))" | raven.Throw(e)
+func GenerateUpdateOneAPI()
+```
+```go
+package main
+import (
+    "encoding/json"
+    "fmt"
+    "github.com/fwhezfwhez/model_convert"
+)
+func main() {
+	type VxTemplateUser struct {
+		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+
+		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
+		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	}
+
+	rs := GenerateUpdateOneAPI(VxTemplateUser{}, map[string]string{
+		"${model}": "payModel.LingqianOrder",
+		"${handler_name}" : "HTTPDeleteLingqianOrder",
+		"${handle_error}": `common.SaveError(e)`,
+		"${args_forbid_update}": "UserId, game_id",
+	})
+	fmt.Println(rs)
+}
+```
+Output:
+```go
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateUpdateOneAPI().
+func HTTPDeleteLingqianOrder(c *gin.Context) {
+    id := c.Param("id")
+    idInt, e := strconv.Atoi(id)
+    if e!=nil {
+        c.JSON(400, gin.H{"message": fmt.Sprintf("param 'id' requires int but got %s", id)})
+        return
+    }
+    var count int
+    if e:=db.DB.Model(&payModel.LingqianOrder{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    if count ==0 {
+        c.JSON(200, gin.H{"message": fmt.Sprintf("id '%s' record not found", id)})
+        return
+    }
+    var param payModel.LingqianOrder
+    if e:=c.Bind(&param);e!=nil {
+        c.JSON(400, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+
+    if !util.IfZero(param.UserId) {
+        c.JSON(400, gin.H{"message": "field 'UserId' can't be modified'"})
+        return
+    }
+    if !util.IfZero(param.GameId) {
+        c.JSON(400, gin.H{"message": "field 'GameId' can't be modified'"})
+        return
+    }
+    if e:=db.DB.Model(&payModel.LingqianOrder{}).Where("id=?", id).Updates(param).Error; e!=nil {
+        common.SaveError(e)
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success"})
+}
 ```

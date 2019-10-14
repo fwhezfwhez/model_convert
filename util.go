@@ -8,6 +8,12 @@ func LowerFistLetter(s string) string {
 	}
 	return strings.ToLower(string(s[0])) + s[1:]
 }
+func UpperFirstLetter(s string) string {
+	if s == "" {
+		return s
+	}
+	return strings.ToUpper(string(s[0])) + s[1:]
+}
 
 func GetZeroValue(src interface{}) string {
 	switch src.(type) {
@@ -17,4 +23,11 @@ func GetZeroValue(src interface{}) string {
 		return `""`
 	}
 	return `""`
+}
+
+func Format(arg string) string {
+	arg = strings.Replace(arg, "\n\n", "\n", -1)
+	arg = strings.Replace(arg, "\n\n\n", "\n", -1)
+	arg = strings.Replace(arg, "\n    \n", "\n", -1)
+	return arg
 }

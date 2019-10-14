@@ -237,7 +237,7 @@ func ${handler_name}(c *gin.Context) {
 	return tmp
 }
 
-// Generate list api code.
+// Generate get one api code.
 // To completely use these code, you might import:
 // "github.com/fwhezfwhez/errorx"
 // you can get 'errorx.Wrap(e)' above
@@ -245,7 +245,7 @@ func ${handler_name}(c *gin.Context) {
 // - ${db_instance} "db.DB"
 // - ${handler_name} "HTTPListUser"
 // - ${model} "model.User"
-// - ${handle_error} "fmt.Println(e)"
+// - ${handle_error} "fmt.Println(e, string(debug.Stack()))"
 func GenerateGetOneAPI(src interface{}, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
@@ -288,6 +288,181 @@ func ${handler_name}(c *gin.Context) {
 	return result
 }
 
+// Generate add one api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e, string(debug.Stack()))"
+func GenerateAddOneAPI(src interface{}, replacement ...map[string]string) string {
+	if len(replacement) == 0 {
+		replacement = []map[string]string{
+			map[string]string{},
+		}
+	}
+	handleDefault(src, replacement[0])
+
+	var resultf = `
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateAddOneAPI().
+func ${handler_name} (c *gin.Context) {
+    var param ${model}
+    if e := c.Bind(&param); e!=nil {
+        c.JSON(400, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+
+    if e:=${db_instance}.Model(&${model}{}).Create(&param).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success", "data": param})
+}
+`
+	result := strings.Replace(resultf, "${handler_name}", replacement[0]["${handler_name}"], -1)
+	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
+	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
+	return result
+}
+
+// Generate delete one api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e, string(debug.Stack()))"
+func GenerateDeleteOneAPI(src interface{}, replacement ...map[string]string) string {
+	if len(replacement) == 0 {
+		replacement = []map[string]string{
+			map[string]string{},
+		}
+	}
+	handleDefault(src, replacement[0])
+	var resultf = `
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateDeleteOneAPI().
+func ${handler_name}(c *gin.Context) {
+    id := c.Param("id")
+    idInt, e := strconv.Atoi(id)
+    if e!=nil {
+        c.JSON(400, gin.H{"message": fmt.Sprintf("param 'id' requires int but got %s", id)})
+        return
+    }
+    var count int
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    if count ==0 {
+        c.JSON(200, gin.H{"message": fmt.Sprintf("id '%s' record not found", id)})
+        return
+    }
+    var instance ${model}
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).Delete(&instance).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success"})
+}
+`
+	result := strings.Replace(resultf, "${handler_name}", replacement[0]["${handler_name}"], -1)
+	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
+	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
+	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+	return result
+}
+
+// Generate update one api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// | field optional | default value | example value
+// - ${util_pkg} | "util" | "model_convert.util"
+// - ${args_forbid_update} | "" | "user_id, game_id"
+// - ${db_instance} "db.DB" | "db.DB"
+// - ${handler_name} "HTTPListUser" | HTTPUpdateUser |
+// - ${model} "model.User" | "payModel.Order"
+// - ${handle_error} "fmt.Println(e, string(debug.Stack()))" | raven.Throw(e)
+func GenerateUpdateOneAPI(src interface{}, replacement ...map[string]string) string {
+	if len(replacement) == 0 {
+		replacement = []map[string]string{
+			map[string]string{},
+		}
+	}
+	handleDefault(src, replacement[0])
+	var argsForbidf = `
+    if !util.IfZero(param.${field_name}) {
+        c.JSON(400, gin.H{"message": "field '${field_name}' can't be modified'"})
+        return
+    }
+`
+	var argsForbid string
+	if replacement[0]["${args_forbid_update}"] != "" {
+		forbids := strings.Split(replacement[0]["${args_forbid_update}"],",")
+		for _,arg := range forbids {
+			arg = strings.TrimSpace(arg)
+			arg = UnderLineToHump(arg)
+			arg = UpperFirstLetter(arg)
+			argsForbid += strings.Replace(argsForbidf, "${field_name}", arg, -1)
+		}
+	}
+
+	var resultf = `
+// Auto generate by github.com/fwhezfwhez/model_convert.GenerateUpdateOneAPI().
+func ${handler_name}(c *gin.Context) {
+    id := c.Param("id")
+    idInt, e := strconv.Atoi(id)
+    if e!=nil {
+        c.JSON(400, gin.H{"message": fmt.Sprintf("param 'id' requires int but got %s", id)})
+        return
+    }
+    var count int
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    if count ==0 {
+        c.JSON(200, gin.H{"message": fmt.Sprintf("id '%s' record not found", id)})
+        return
+    }
+
+    var param ${model}
+    if e:=c.Bind(&param);e!=nil {
+        c.JSON(400, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    
+    ${args_forbid}
+    
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).Updates(param).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "success"})
+}
+`
+	result := strings.Replace(resultf, "${handler_name}", replacement[0]["${handler_name}"], -1)
+	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
+	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
+	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+
+	result = strings.Replace(result, "${args_forbid}",argsForbid, -1)
+	result = Format(result)
+	return result
+}
+
+
 func handleDefault(src interface{}, replacement map[string]string) {
 
 	if replacement["${page}"] == "" {
@@ -316,6 +491,6 @@ func handleDefault(src interface{}, replacement map[string]string) {
 	}
 
 	if replacement["${handle_error}"] == "" {
-		replacement["${handle_error}"] = "log.Println(e)"
+		replacement["${handle_error}"] = "fmt.Println(e, string(debug.Stack()))"
 	}
 }
