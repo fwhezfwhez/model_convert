@@ -456,6 +456,16 @@ func HTTPAddLingqianOrder (c *gin.Context) {
 
 Note:
 ```go
+// Generate delete one api code.
+// To completely use these code, you might import:
+// "github.com/fwhezfwhez/errorx"
+// you can get 'errorx.Wrap(e)' above
+//
+// - ${db_instance} "db.DB"
+// - ${handler_name} "HTTPListUser"
+// - ${model} "model.User"
+// - ${handle_error} "fmt.Println(e, string(debug.Stack()))"
+func GenerateDeleteOneAPI()
 ```
 ```go
 package main
@@ -550,7 +560,7 @@ func main() {
 
 	rs := GenerateUpdateOneAPI(VxTemplateUser{}, map[string]string{
 		"${model}": "payModel.LingqianOrder",
-		"${handler_name}" : "HTTPDeleteLingqianOrder",
+		"${handler_name}" : "HTTPUpdateLingqianOrder",
 		"${handle_error}": `common.SaveError(e)`,
 		"${args_forbid_update}": "UserId, game_id",
 	})
