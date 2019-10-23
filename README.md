@@ -147,6 +147,7 @@ type UserInfo struct {
 }
 ```
 #### 2.4 Go model transfer to protobuf3
+Developing.Requiring modify a bit by yourself.
 ```go
 package main
 
