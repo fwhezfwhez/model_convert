@@ -310,6 +310,42 @@ func (o *${structName}) GetFromRedis(conn redis.Conn) error {
 	return nil
 }
 
+// engine should prepare its condition.
+// if record not found,it will return 'var notFound = fmt.Errorf("not found record in db nor redis")'.
+// If you want to ignore not found error, do it like:
+// if e:= o.MustGet(conn, engine.Where("condition =?", arg)).Error;e!=nil {
+//     if e != fmt.Errorf("not found record in db nor redis") {
+//         log.Println(e)
+//         return
+//     }
+// }
+func (o *${structName}) MustGet(conn redis.Conn, engine *gorm.DB) error {
+	e := o.GetFromRedis(conn)
+	if e == nil {
+		return nil
+	}
+	if e != nil {
+		var count int
+		if e2 := engine.Count(&count).Error; e2 != nil {
+			return errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e2))
+		}
+		if count == 0 {
+			var notFound = fmt.Errorf("not found record in db nor redis")
+			return notFound
+		}
+
+		if e3 := engine.First(&o).Error; e3 != nil {
+			return errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e3))
+		}
+		if e == redis.ErrNil {
+			o.SyncToRedis(conn)
+			return nil
+		}
+		return errorx.Wrap(e)
+	}
+	return nil
+}
+
 func (o ${structName}) SyncToRedis(conn redis.Conn) error {
 	if o.RedisKey() == "" {
 		return errorx.NewFromString("object ${structName} has not set redis key yet")

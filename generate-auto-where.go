@@ -1,6 +1,7 @@
 package model_convert
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"strings"
@@ -99,7 +100,7 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 			tmp := `
     ${field_name} := c.DefaultQuery("${tag_name}", "")
     if ${field_name} != "" {
-        engine = engine.Where("${tag_name} != ?", ${field_name})
+        engine = engine.Where("${tag_name} = ?", ${field_name})
     }
 `
 			tmp = strings.Replace(tmp, "${field_name}", fieldName, -1)
@@ -116,7 +117,7 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 // Generate list api code.
 // To completely use these code, you might import:
 // "github.com/fwhezfwhez/errorx"
-// "github.com/model_convert/util"
+// mc_util "github.com/model_convert/util"
 // you can get 'errorx.Wrap(e)','util.ToLimitOffset()', 'util.GenerateOrderBy()' above
 //
 // Replacement optional as:
@@ -151,7 +152,7 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 	}
 
 	if replacement[0]["${util_pkg}"] == "" {
-		replacement[0]["${util_pkg}"] = "util"
+		replacement[0]["${util_pkg}"] = "mc_util"
 	}
 
 	if replacement[0]["${handler_name}"] == "" {
@@ -201,7 +202,7 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
     }
-    c.JSON(200, gin.H{"message": "success", "count": 0, "data": list})
+    c.JSON(200, gin.H{"message": "success", "count": count, "data": list})
 `
 	var resultf, result string
 	resultf = queryArgsStatement + commonStatementf
@@ -407,8 +408,8 @@ func GenerateUpdateOneAPI(src interface{}, replacement ...map[string]string) str
 `
 	var argsForbid string
 	if replacement[0]["${args_forbid_update}"] != "" {
-		forbids := strings.Split(replacement[0]["${args_forbid_update}"],",")
-		for _,arg := range forbids {
+		forbids := strings.Split(replacement[0]["${args_forbid_update}"], ",")
+		for _, arg := range forbids {
 			arg = strings.TrimSpace(arg)
 			arg = UnderLineToHump(arg)
 			arg = UpperFirstLetter(arg)
@@ -457,11 +458,39 @@ func ${handler_name}(c *gin.Context) {
 	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
 
-	result = strings.Replace(result, "${args_forbid}",argsForbid, -1)
+	result = strings.Replace(result, "${args_forbid}", argsForbid, -1)
 	result = Format(result)
 	return result
 }
 
+func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
+	if len(replacement) == 0 {
+		replacement = []map[string]string{
+			map[string]string{},
+		}
+	}
+
+	modelName := reflect.TypeOf(src).Name()
+
+	var rs string
+	replacement[0]["${handler_name}"] = "HTTPAdd" + modelName
+	addAPI := GenerateAddOneAPI(src, replacement...)
+
+	replacement[0]["${handler_name}"] = "HTTPList" + modelName
+	listAPI := GenerateListAPI(src, false, replacement...)
+
+	replacement[0]["${handler_name}"] = "HTTPGet" + modelName
+	getAPI := GenerateGetOneAPI(src,  replacement...)
+
+	replacement[0]["${handler_name}"] = "HTTPUpdate" + modelName
+	updateAPI := GenerateUpdateOneAPI(src, replacement...)
+
+	replacement[0]["${handler_name}"] = "HTTPDelete" + modelName
+	deleteAPI := GenerateDeleteOneAPI(src, replacement...)
+
+	rs = fmt.Sprintf("%s \n %s \n %s \n %s \n %s", addAPI, listAPI, getAPI, updateAPI, deleteAPI)
+	return rs
+}
 
 func handleDefault(src interface{}, replacement map[string]string) {
 
