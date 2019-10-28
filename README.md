@@ -147,6 +147,7 @@ type UserInfo struct {
 }
 ```
 #### 2.4 Go model transfer to protobuf3
+Developing.Requiring modify a bit by yourself.
 ```go
 package main
 
@@ -570,7 +571,7 @@ func main() {
 Output:
 ```go
 // Auto generate by github.com/fwhezfwhez/model_convert.GenerateUpdateOneAPI().
-func HTTPDeleteLingqianOrder(c *gin.Context) {
+func HTTPUpdateLingqianOrder(c *gin.Context) {
     id := c.Param("id")
     idInt, e := strconv.Atoi(id)
     if e!=nil {
