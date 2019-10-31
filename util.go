@@ -29,5 +29,6 @@ func Format(arg string) string {
 	arg = strings.Replace(arg, "\n\n", "\n", -1)
 	arg = strings.Replace(arg, "\n\n\n", "\n", -1)
 	arg = strings.Replace(arg, "\n    \n", "\n", -1)
+	arg = strings.Replace(arg, "//\n\n//", "//\n//",-1)
 	return arg
 }

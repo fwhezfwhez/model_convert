@@ -130,8 +130,9 @@ func TestGenerateCRUD(t *testing.T) {
 	}
 
 	rs := GenerateCRUD(VxTemplateUser{}, map[string]string{
-		"${model}": "payModel.VxTemplateUser",
+		"${model}": "moduleModel.VxTemplateUser",
 		"${handle_error}": `common.SaveError(e)`,
+		"${db_instance}": "db.DB",
 	})
 	fmt.Println(rs)
 }
