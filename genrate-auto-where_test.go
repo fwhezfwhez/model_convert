@@ -119,18 +119,20 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 }
 
 func TestGenerateCRUD(t *testing.T) {
-	type VxTemplateUser struct {
-		Id     int    `gorm:"column:id;default:" json:"id" form:"id"`
-		GameId int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		UserId int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
-		OpenId string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
-
-		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
-		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+	type EventTrigger struct {
+		Id          int             `gorm:"column:id;default:" json:"id" form:"id"`
+		TriggerName string          `gorm:"column:trigger_name;default:" json:"trigger_name" form:"trigger_name"`
+		Description string          `gorm:"column:description;default:" json:"description" form:"description"`
+		EventName   string          `gorm:"column:event_name;default:" json:"event_name" form:"event_name"`
+		Method      string          `gorm:"column:method;default:" json:"method" form:"method"`
+		Body        json.RawMessage `gorm:"column:body;default:" json:"body" form:"body"`
+		Url         string          `gorm:"column:url;default:" json:"url" form:"url"`
+		Header      json.RawMessage `gorm:"column:header;default:" json:"header" form:"header"`
 	}
 
-	rs := GenerateCRUD(VxTemplateUser{}, map[string]string{
-		"${model}": "moduleModel.VxTemplateUser",
+
+	rs := GenerateCRUD(EventTrigger{}, map[string]string{
+		"${model}": "triggerModel.EventTrigger",
 		"${handle_error}": `common.SaveError(e)`,
 		"${db_instance}": "db.DB",
 	})
