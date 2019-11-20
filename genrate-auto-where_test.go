@@ -119,20 +119,15 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 }
 
 func TestGenerateCRUD(t *testing.T) {
-	type EventTrigger struct {
-		Id          int             `gorm:"column:id;default:" json:"id" form:"id"`
-		TriggerName string          `gorm:"column:trigger_name;default:" json:"trigger_name" form:"trigger_name"`
-		Description string          `gorm:"column:description;default:" json:"description" form:"description"`
-		EventName   string          `gorm:"column:event_name;default:" json:"event_name" form:"event_name"`
-		Method      string          `gorm:"column:method;default:" json:"method" form:"method"`
-		Body        json.RawMessage `gorm:"column:body;default:" json:"body" form:"body"`
-		Url         string          `gorm:"column:url;default:" json:"url" form:"url"`
-		Header      json.RawMessage `gorm:"column:header;default:" json:"header" form:"header"`
+	type GameUnionConfig struct {
+		Id          int    `gorm:"column:id;default:" json:"id" form:"id"`
+		GameUnionId int    `gorm:"column:game_union_id;default:" json:"game_union_id" form:"game_union_id"`
+		Description string `gorm:"column:description;default:" json:"description" form:"description"`
 	}
 
 
-	rs := GenerateCRUD(EventTrigger{}, map[string]string{
-		"${model}": "triggerModel.EventTrigger",
+	rs := GenerateCRUD(GameUnionConfig{}, map[string]string{
+		"${model}": "backendModel.GameUnionConfig",
 		"${handle_error}": `common.SaveError(e)`,
 		"${db_instance}": "db.DB",
 	})

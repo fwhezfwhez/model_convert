@@ -298,12 +298,19 @@ func (o *${structName}) GetFromRedis(conn redis.Conn) error {
 		return errorx.NewFromString("object ${structName} has not set redis key yet")
 	}
 	buf,e:= redis.Bytes(conn.Do("GET", o.RedisKey()))
+
+    if e==nil && string(buf)=="DISABLE"{
+        return fmt.Errorf("not found record in db nor redis")
+    }
+
 	if e == redis.ErrNil {
 		return e
 	}
+
 	if e != nil && e != redis.ErrNil {
 		return errorx.Wrap(e)
 	}
+
 	e = json.Unmarshal(buf, &o)
 
 	if e!=nil {
@@ -323,6 +330,11 @@ func (o *${structName}) GetFromRedis(conn redis.Conn) error {
 // }
 func (o *${structName}) MustGet(conn redis.Conn, engine *gorm.DB) error {
 	e := o.GetFromRedis(conn)
+    // When redis key stores its value 'DISABLE', will returns notFoundError and no need to query from db any more
+    if e!=nil && e.Error() == "not found record in db nor redis" {
+       return e
+    }
+
 	if e == nil {
 		return nil
 	}
@@ -333,6 +345,7 @@ func (o *${structName}) MustGet(conn redis.Conn, engine *gorm.DB) error {
 		}
 		if count == 0 {
 			var notFound = fmt.Errorf("not found record in db nor redis")
+            conn.Do("SET", o.RedisKey(), "DISABLE", "EX", o.RedisSecondDuration(), "NX")
 			return notFound
 		}
 

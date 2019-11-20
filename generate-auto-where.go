@@ -320,6 +320,7 @@ func ${handler_name} (c *gin.Context) {
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
     }
+
     c.JSON(200, gin.H{"message": "success", "data": param})
 }
 `
