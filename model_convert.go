@@ -271,6 +271,7 @@ import (
 	"github.com/fwhezfwhez/errorx"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jinzhu/gorm"
+    "time"
 )
 
 /* 
@@ -296,8 +297,8 @@ func (o ${structName}) RedisKey() string {
 }
 
 func  (o ${structName}) RedisSecondDuration() int {
-    // TODO set its redis duration, default one day, -1 without time limit
-    return 1 * 24 * 60 * 60
+    // TODO set its redis duration, default 1-7 day,  return -1 means no time limit
+    return int(time.Now().Unix() % 7 + 1) * 24 * 60 * 60
 }
 
 

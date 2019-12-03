@@ -298,6 +298,7 @@ func ${handler_name}(c *gin.Context) {
 // - ${handler_name} "HTTPListUser"
 // - ${model} "model.User"
 // - ${handle_error} "fmt.Println(e, string(debug.Stack()))"
+// - ${redis_conn} "redistool.RedisPool.Get()"
 func GenerateAddOneAPI(src interface{}, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
@@ -321,6 +322,11 @@ func ${handler_name} (c *gin.Context) {
         return
     }
 
+    if param.RedisKey() != "" {
+        conn := ${redis_conn}
+        defer conn.Close()
+        param.SyncToRedis(conn)
+    }
     c.JSON(200, gin.H{"message": "success", "data": param})
 }
 `
@@ -328,6 +334,7 @@ func ${handler_name} (c *gin.Context) {
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
 	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
 	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
+	result = strings.Replace(result, "${redis_conn}", replacement[0]["${redis_conn}"], -1)
 	return result
 }
 
@@ -340,6 +347,7 @@ func ${handler_name} (c *gin.Context) {
 // - ${handler_name} "HTTPListUser"
 // - ${model} "model.User"
 // - ${handle_error} "fmt.Println(e, string(debug.Stack()))"
+// - ${redis_conn} "redistool.RedisPool.Get()"
 func GenerateDeleteOneAPI(src interface{}, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
@@ -367,10 +375,21 @@ func ${handler_name}(c *gin.Context) {
         return
     }
     var instance ${model}
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).Delete(&instance).Error; e!=nil {
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).First(&instance).Error; e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
+    }    
+    
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).Delete(&${model}{}).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+    if instance.RedisKey() != "" {
+        conn := ${redis_conn}
+        defer conn.Close()
+        instance.DeleteFromRedis(conn)
     }
     c.JSON(200, gin.H{"message": "success"})
 }
@@ -379,6 +398,7 @@ func ${handler_name}(c *gin.Context) {
 	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
 	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+	result = strings.Replace(result, "${redis_conn}", replacement[0]["${redis_conn}"], -1)
 	return result
 }
 
@@ -394,6 +414,7 @@ func ${handler_name}(c *gin.Context) {
 // - ${handler_name} "HTTPListUser" | HTTPUpdateUser |
 // - ${model} "model.User" | "payModel.Order"
 // - ${handle_error} "fmt.Println(e, string(debug.Stack()))" | raven.Throw(e)
+// - ${redis_conn} "redistool.RedisPool.Get()"
 func GenerateUpdateOneAPI(src interface{}, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
@@ -446,10 +467,23 @@ func ${handler_name}(c *gin.Context) {
     
     ${args_forbid}
     
+    var instance ${model}
+    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).First(&instance).Error; e!=nil {
+        ${handle_error}
+        c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+        return
+    }
+
     if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).Updates(param).Error; e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
+    }
+
+    if instance.RedisKey()!=""{
+        conn := ${redis_conn}
+        defer conn.Close()
+        instance.DeleteFromRedis(conn)
     }
     c.JSON(200, gin.H{"message": "success"})
 }
@@ -458,6 +492,7 @@ func ${handler_name}(c *gin.Context) {
 	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
 	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
+	result = strings.Replace(result, "${redis_conn}", replacement[0]["${redis_conn}"], -1)
 
 	result = strings.Replace(result, "${args_forbid}", argsForbid, -1)
 	result = Format(result)
@@ -481,7 +516,7 @@ func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 	listAPI := GenerateListAPI(src, false, replacement...)
 
 	replacement[0]["${handler_name}"] = "HTTPGet" + modelName
-	getAPI := GenerateGetOneAPI(src,  replacement...)
+	getAPI := GenerateGetOneAPI(src, replacement...)
 
 	replacement[0]["${handler_name}"] = "HTTPUpdate" + modelName
 	updateAPI := GenerateUpdateOneAPI(src, replacement...)
@@ -497,11 +532,12 @@ func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 //
 // "package/path/to/${db_instance}"
 // "package/path/to/${model}"
+// "package/path/to/${redis_conn}"
 //
 `
-	note = strings.Replace(note, "${db_instance}", replacement[0]["${db_instance}"],-1)
-	note = strings.Replace(note, "${model}", replacement[0]["${model}"],-1)
-	rs = fmt.Sprintf("%s%s  %s  %s  %s  %s",note, addAPI, listAPI, getAPI, updateAPI, deleteAPI)
+	note = strings.Replace(note, "${db_instance}", replacement[0]["${db_instance}"], -1)
+	note = strings.Replace(note, "${model}", replacement[0]["${model}"], -1)
+	rs = fmt.Sprintf("%s%s  %s  %s  %s  %s", note, addAPI, listAPI, getAPI, updateAPI, deleteAPI)
 	rs = Format(rs)
 	return rs
 }
@@ -535,5 +571,8 @@ func handleDefault(src interface{}, replacement map[string]string) {
 
 	if replacement["${handle_error}"] == "" {
 		replacement["${handle_error}"] = "fmt.Println(e, string(debug.Stack()))"
+	}
+	if replacement["${redis_conn}"] == "" {
+		replacement["${redis_conn}"] = "redistool.RedisPool.Get()"
 	}
 }

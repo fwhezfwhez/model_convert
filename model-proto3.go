@@ -205,10 +205,14 @@ func GoModelToProto2(i interface{}, replacement ... map[string]string) (string, 
 		pIndex, _ = strconv.Atoi(replacement[0]["${start_index}"])
 	}
 
+	// go model, key fieldName, value golang type name
 	var typeMap = make(map[string]string)
+
+	// go model, key type name, value proto transfer
 	var protoTypeMap = map[string]string{
-		"int":    "Int32",
-		"string": "String",
+		"int":        "proto.Int32",
+		"string":     "proto.String",
+		"RawMessage": "[]byte",
 	}
 
 	for i := 0; i < vValue.NumField(); i++ {
@@ -304,11 +308,12 @@ func SetProto%s(src ${model_pkg_name}.%s) ${pb_pkg_name}.%s {
 
 	var line3 string
 	suffix = "\n    "
+
 	for i := 0; i < vValue.NumField(); i++ {
 		if i == vValue.NumField()-1 {
 			suffix = ""
 		}
-		var linef = "dest.%s = proto.%s(int32(src.%s))" + suffix
+		var linef = "dest.%s = %s(int32(src.%s))" + suffix
 		var propName = vType.Field(i).Name
 		line3 += fmt.Sprintf(linef, propName, protoTypeMap[typeMap[propName]], propName)
 	}

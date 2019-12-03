@@ -118,17 +118,20 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 	fmt.Println(rs)
 }
 
+// TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type GameUnionConfig struct {
-		Id          int    `gorm:"column:id;default:" json:"id" form:"id"`
-		GameUnionId int    `gorm:"column:game_union_id;default:" json:"game_union_id" form:"game_union_id"`
-		Description string `gorm:"column:description;default:" json:"description" form:"description"`
+	type StageUnionConfig struct {
+		Id              int             `gorm:"column:id;default:" json:"id" form:"id"`
+		Stage           int             `gorm:"column:stage;default:" json:"stage" form:"stage"`
+		AwardConfig     json.RawMessage `gorm:"column:award_config;default:" json:"award_config" form:"award_config"`
+		EasterCostGold  int             `gorm:"column:easter_cost_gold;default:" json:"easter_cost_gold" form:"easter_cost_gold"`
+		GoldEasterTimes int             `gorm:"column:gold_easter_times;default:" json:"gold_easter_times" form:"gold_easter_times"`
+		AdsEasterTimes  int             `gorm:"column:ads_easter_times;default  :" json:"ads_easter_times" form:"ads_easter_times"`
 	}
 
-
-	rs := GenerateCRUD(GameUnionConfig{}, map[string]string{
-		"${model}": "backendModel.GameUnionConfig",
-		"${handle_error}": `common.SaveError(e)`,
+	rs := GenerateCRUD(StageUnionConfig{}, map[string]string{
+		"${model}": "gameModel.StageUnionConfig",
+		"${handle_error}": `common.SaveError(errorx.Wrap(e))`,
 		"${db_instance}": "db.DB",
 	})
 	fmt.Println(rs)
