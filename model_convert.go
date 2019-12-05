@@ -354,8 +354,12 @@ func (o *${structName}) MustGet(conn redis.Conn, engine *gorm.DB) error {
 		}
 		if count == 0 {
 			var notFound = fmt.Errorf("not found record in db nor redis")
-            conn.Do("SET", o.RedisKey(), "DISABLE", "EX", o.RedisSecondDuration(), "NX")
-			return notFound
+			if o.RedisSecondDuration() == -1 {
+				conn.Do("SET", o.RedisKey(), "DISABLE", "NX")
+			} else {
+				conn.Do("SET", o.RedisKey(), "DISABLE", "EX", o.RedisSecondDuration(), "NX")
+			}
+	        return notFound
 		}
 
 		if e3 := engine.First(&o).Error; e3 != nil {

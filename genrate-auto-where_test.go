@@ -120,17 +120,19 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type StageUnionConfig struct {
-		Id              int             `gorm:"column:id;default:" json:"id" form:"id"`
-		Stage           int             `gorm:"column:stage;default:" json:"stage" form:"stage"`
-		AwardConfig     json.RawMessage `gorm:"column:award_config;default:" json:"award_config" form:"award_config"`
-		EasterCostGold  int             `gorm:"column:easter_cost_gold;default:" json:"easter_cost_gold" form:"easter_cost_gold"`
-		GoldEasterTimes int             `gorm:"column:gold_easter_times;default:" json:"gold_easter_times" form:"gold_easter_times"`
-		AdsEasterTimes  int             `gorm:"column:ads_easter_times;default  :" json:"ads_easter_times" form:"ads_easter_times"`
+	type LingqianBalance struct {
+		GameId        int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		GameAreaId    int    `gorm:"column:game_area_id;default:" json:"game_area_id" form:"game_area_id"`
+		UserId        int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		OpenId        string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+		Balance       int    `gorm:"column:balance;default:" json:"balance" form:"balance"`
+		HistoryCashed int    `gorm:"column:history_cashed;default:" json:"history_cashed" form:"history_cashed"`
+		Id            int    `gorm:"column:id;default:" json:"id" form:"id"`
+		Origin        int    `gorm:"column:origin;default:" json:"origin" form:"origin"`
 	}
 
-	rs := GenerateCRUD(StageUnionConfig{}, map[string]string{
-		"${model}": "gameModel.StageUnionConfig",
+	rs := GenerateCRUD(LingqianBalance{}, map[string]string{
+		"${model}": "payModel.LingqianBalance",
 		"${handle_error}": `common.SaveError(errorx.Wrap(e))`,
 		"${db_instance}": "db.DB",
 	})
