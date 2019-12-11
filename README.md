@@ -11,7 +11,7 @@ model-convert is used for transfer all kinds of structs
 - [1. Start](#1-start)
 - [2. Stable cases](#2-stable-cases)
     - [2.1 Xml to go model](#21-xml-to-go-model)
-    - [2.2 Gorm-postgres table to model](#22-gorm-postgres-table-to-model)
+    - [2.2 Gorm-postgres/mysql table to model](#22-gorm-postgresmysql-table-to-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
     - [2.4 Go model transfer to protobuf3](#24-go-model-transfer-to-protobuf3)
     - [2.5 Http restful api](#25-http-restful-api)
@@ -70,7 +70,7 @@ type MessageInfo struct{
 }
 ```
 
-#### 2.2 Gorm-postgres table to model
+#### 2.2 Gorm-postgres/mysql table to model
 
 ```go
 package main
