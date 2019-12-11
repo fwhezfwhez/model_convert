@@ -87,12 +87,13 @@ func main() {
     fmt.Println(model_convert.TableToStructWithTag(dataSouce, tableName, "postgres"))
 
     // mysql
-    dataSouce = "ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true"
-    tableName = "t_user"
-    fmt.Println(mc.TableToStructWithTag(dataSouce, tableName, "mysql"))
+    // dataSouce = "ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true"
+    // tableName = "t_user"
+    // fmt.Println(mc.TableToStructWithTag(dataSouce, tableName, "mysql"))
 }
 ```
 output:
+postgres
 ```
 type UserInfo struct {
     Id        int    `gorm:"column:id;default:" json:"id" form:"id"`
@@ -109,7 +110,19 @@ func (o UserInfo) TableName() string {
     return "user_info"
 }
 ```
+mysql
+```go
+type TUser struct {
+	Attach    json.RawMessage `gorm:"column:attach;default:" json:"attach" form:"attach"`
+	CreatedAt time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+	Id        int             `gorm:"column:id;default:" json:"id" form:"id"`
+	Name      string          `gorm:"column:name;default:" json:"name" form:"name"`
+}
 
+func (o TUser) TableName() string {
+	return "t_user"
+}
+```
 #### 2.3 Add json,form tag for go model
 Only support under-line style `AaBb -> aa_bb`
 ```go
