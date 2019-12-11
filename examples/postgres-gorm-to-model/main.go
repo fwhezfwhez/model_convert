@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"model_convert"
+	"github.com/fwhezfwhez/model_convert"
 )
 
 func main() {

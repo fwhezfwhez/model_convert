@@ -66,7 +66,7 @@ func TestTableToStruct(t *testing.T) {
 func TestTableToStructWithTag(t *testing.T) {
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
 	tableName := "user_info"
-	fmt.Println(TableToStructWithTag(dataSouce, tableName))
+	fmt.Println(TableToStructWithTag(dataSouce, tableName, "postgres"))
 }
 
 // add json and form for a go model

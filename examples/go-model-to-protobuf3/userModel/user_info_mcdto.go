@@ -1,6 +1,6 @@
 package userModel
 
-import "model_convert/examples/go-model-to-protobuf3/userProto"
+import "github.com/fwhezfwhez/model_convert/examples/go-model-to-protobuf3/userProto"
 
 func SetModelUserInfo(src userProto.UserInfo) UserInfo {
 	var dest UserInfo

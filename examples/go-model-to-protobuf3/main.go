@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"model_convert"
-	"model_convert/examples/go-model-to-protobuf3/userModel"
+	"github.com/fwhezfwhez/model_convert"
+	"github.com/fwhezfwhez/model_convert/examples/go-model-to-protobuf3/userModel"
 )
 
 func main() {
