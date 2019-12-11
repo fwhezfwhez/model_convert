@@ -81,9 +81,15 @@ import (
 )
 
 func main() {
+    // postgres
     dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
     tableName := "user_info"
     fmt.Println(model_convert.TableToStructWithTag(dataSouce, tableName, "postgres"))
+
+    // mysql
+    dataSouce = "ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true"
+    tableName = "t_user"
+    fmt.Println(mc.TableToStructWithTag(dataSouce, tableName, "mysql"))
 }
 ```
 output:
