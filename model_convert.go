@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fwhezfwhez/errorx"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"strings"
 )
@@ -181,12 +182,22 @@ func AddJSONFormGormTag(in string) string {
 }
 
 // 根据数据源，表明获取列属性
-func FindColumns(dataSource string, tableName string) []Column {
+func FindColumns(dialect string, dataSource string, tableName string) []Column {
 	defer func() {
 		if e := recover(); e != nil {
 			fmt.Println(fmt.Sprintf("recover from a fatal error : %v", e))
 		}
 	}()
+
+	switch dialect {
+	case "postgres", "pg", "psql":
+		return findPGColumns(dataSource, tableName)
+	case "mysql":
+		return findMysqlColumns(dataSource, tableName)
+	}
+	return nil
+}
+func findPGColumns(dataSource string, tableName string) []Column {
 	var FindColumnsSql = `
         SELECT
             a.attnum AS column_number,
@@ -237,12 +248,32 @@ func FindColumns(dataSource string, tableName string) []Column {
 	db.Raw(FindColumnsSql, tableName).Find(&columns)
 	return columns
 }
+func findMysqlColumns(dataSource string, tableName string) []Column {
+	var FindColumnsSql = `
+       SELECT column_name as column_name, column_type as column_type  FROM information_schema.columns WHERE table_name= ?
+	`
+	db, err := gorm.Open("mysql", dataSource)
+	db.SingularTable(true)
+	db.LogMode(true)
+	if err != nil {
+		panic(err)
+	}
+	var columns = make([]Column, 0, 10)
+	if e := db.Raw(FindColumnsSql, tableName).Scan(&columns).Error; e != nil {
+		panic(err)
+	}
+
+	return columns
+}
 
 // 数据库表转go model
-func TableToStruct(dataSource string, tableName string) string {
+func TableToStruct(dataSource string, tableName string, dialect ...string) string {
+	if len(dialect) == 0 {
+		dialect = []string{"postgres"}
+	}
 	columnString := ""
 	tmp := ""
-	columns := FindColumns(dataSource, tableName)
+	columns := FindColumns(dialect[0], dataSource, tableName)
 	for _, column := range columns {
 
 		tmp = fmt.Sprintf("    %s  %s\n", UnderLineToHump(column.ColumnName), typeConvert(column.ColumnType))
@@ -254,10 +285,14 @@ func TableToStruct(dataSource string, tableName string) string {
 }
 
 // 数据库表转go model 带tag
-func TableToStructWithTag(dataSource string, tableName string) string {
+func TableToStructWithTag(dataSource string, tableName string, dialect ... string) string {
 	columnString := ""
 	tmp := ""
-	columns := FindColumns(dataSource, tableName)
+
+	if len(dialect) == 0 {
+		dialect = []string{"postgres"}
+	}
+	columns := FindColumns(dialect[0], dataSource, tableName)
 	for _, column := range columns {
 
 		tmp = fmt.Sprintf("    %s  %s    `gorm:\"column:%s;default:\" json:\"%s\" form:\"%s\"`\n",
@@ -426,22 +461,38 @@ func typeConvert(s string) string {
 	}) {
 		return "string"
 	}
-	if in(s, []string{"bigint", "bigserial", "integer", "smallint", "serial", "big serial"}) {
-		return "int"
+	// postgres
+	{
+		if in(s, []string{"bigint", "bigserial", "integer", "smallint", "serial", "big serial"}) {
+			return "int"
+		}
+		if in(s, []string{"numeric", "decimal", "real"}) {
+			return "decimal.Decimal"
+		}
+		if in(s, []string{"bytea"}) {
+			return "[]byte"
+		}
+		if strings.Contains(s, "time") || in(s, []string{"date", "datetime", "timestamp"}) {
+			return "time.Time"
+		}
+		if in(s, []string{"jsonb"}) {
+			return "json.RawMessage"
+		}
 	}
-	if in(s, []string{"numeric", "decimal", "real"}) {
-		return "decimal.Decimal"
+	// mysql
+	{
+		if strings.HasPrefix(s, "int") {
+			return "int"
+		}
+		if strings.HasPrefix(s, "varchar") {
+			return "int"
+		}
+		if s =="json" {
+			return "json.RawMessage"
+		}
 	}
-	if in(s, []string{"bytea"}) {
-		return "[]byte"
-	}
-	if strings.Contains(s, "time") || in(s, []string{"date"}) {
-		return "time.Time"
-	}
-	if in(s, []string{"jsonb"}) {
-		return "json.RawMessage"
-	}
-	return "interface{}"
+
+	return s
 }
 
 // s 是否in arr
@@ -509,9 +560,8 @@ func FindUpperElement(s string) []string {
 
 // 数据库列属性
 type Column struct {
-	ColumnNumber int    `gorm:"column_number"` // column index
-	ColumnName   string `gorm:"column_name"`   // column_name
-	ColumnType   string `gorm:"column_type"`   // column_type
+	ColumnName string `gorm:"column:column_name"` // column_name
+	ColumnType string `gorm:"column:column_type"` // column_type
 }
 
 // go model 带tag

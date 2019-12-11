@@ -35,6 +35,10 @@ func TestAddJSONFormGormTag(t *testing.T) {
 	fmt.Println(rs)
 }
 
+func TestFindMysqlClms(t *testing.T) {
+	r := findMysqlColumns("ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true", "t_user")
+	fmt.Println(r)
+}
 func TestHumpToUnderLine(t *testing.T) {
 	fmt.Println(HumpToUnderLine("NameStructAge"))
 }
@@ -61,10 +65,9 @@ func TestTableToStruct(t *testing.T) {
 // generate model with json/form/gorm tag from database
 func TestTableToStructWithTag(t *testing.T) {
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
-	tableName := "really_game_area_id"
+	tableName := "user_info"
 	fmt.Println(TableToStructWithTag(dataSouce, tableName))
 }
-
 
 // add json and form for a go model
 func TestAddJSONFormTag(t *testing.T) {
@@ -72,17 +75,21 @@ func TestAddJSONFormTag(t *testing.T) {
 	`))
 }
 
-
 func TestModelConvert_Generate(t *testing.T) {
-	mc :=ModelConvert{}
+	mc := ModelConvert{}
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "test", "disable", "123")
-	mc.Init("postgres",dataSouce,false)
-	mc.SetFlags(GORM | FORM| JSON)
+	mc.Init("postgres", dataSouce, false)
+	mc.SetFlags(GORM | FORM | JSON)
 	//s,e:=mc.Generate(nil)
-	s,e :=mc.Generate([]string{"addresses"}...)
-	if e!=nil{
+	s, e := mc.Generate([]string{"addresses"}...)
+	if e != nil {
 		panic(e)
 	}
 	fmt.Println(s)
 }
 
+func TestTableToStructMysql(t *testing.T) {
+	dataSouce := "ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true"
+	tableName := "t_user"
+	fmt.Println(TableToStructWithTag(dataSouce, tableName, "mysql"))
+}
