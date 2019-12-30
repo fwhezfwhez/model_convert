@@ -1,5 +1,4 @@
 package model
-
 import (
 	"encoding/json"
 	"fmt"
@@ -23,34 +22,36 @@ import (
       - RedisKey() string
       - RedisSecondDuration() int
 */
-type TUser struct {
-	Attach    json.RawMessage `gorm:"column:attach;default:" json:"attach" form:"attach"`
-	CreatedAt time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-	Id        int             `gorm:"column:id;default:" json:"id" form:"id"`
-	Name      string          `gorm:"column:name;default:" json:"name" form:"name"`
+type TUser struct{
+	Attach  json.RawMessage    `gorm:"column:attach;default:" json:"attach" form:"attach"`
+	CreatedAt  time.Time    `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+	Id  int    `gorm:"column:id;default:" json:"id" form:"id"`
+	Name  string    `gorm:"column:name;default:" json:"name" form:"name"`
 }
 
 func (o TUser) TableName() string {
 	return "t_user"
 }
 
+
 func (o TUser) RedisKey() string {
 	// TODO set its redis key
 	return ""
 }
 
-func (o TUser) RedisSecondDuration() int {
+func  (o TUser) RedisSecondDuration() int {
 	// TODO set its redis duration, default 1-7 day,  return -1 means no time limit
-	return int(time.Now().Unix()%7+1) * 24 * 60 * 60
+	return int(time.Now().Unix() % 7 + 1) * 24 * 60 * 60
 }
+
 
 func (o *TUser) GetFromRedis(conn redis.Conn) error {
 	if o.RedisKey() == "" {
 		return errorx.NewFromString("object TUser has not set redis key yet")
 	}
-	buf, e := redis.Bytes(conn.Do("GET", o.RedisKey()))
+	buf,e:= redis.Bytes(conn.Do("GET", o.RedisKey()))
 
-	if e == nil && string(buf) == "DISABLE" {
+	if e==nil && string(buf)=="DISABLE"{
 		return fmt.Errorf("not found record in db nor redis")
 	}
 
@@ -64,7 +65,7 @@ func (o *TUser) GetFromRedis(conn redis.Conn) error {
 
 	e = json.Unmarshal(buf, &o)
 
-	if e != nil {
+	if e!=nil {
 		return errorx.Wrap(e)
 	}
 	return nil
@@ -82,7 +83,7 @@ func (o *TUser) GetFromRedis(conn redis.Conn) error {
 func (o *TUser) MustGet(conn redis.Conn, engine *gorm.DB) error {
 	e := o.GetFromRedis(conn)
 	// When redis key stores its value 'DISABLE', will returns notFoundError and no need to query from db any more
-	if e != nil && e.Error() == "not found record in db nor redis" {
+	if e!=nil && e.Error() == "not found record in db nor redis" {
 		return e
 	}
 
@@ -136,7 +137,7 @@ func (o TUser) SyncToRedis(conn redis.Conn) error {
 	return nil
 }
 
-func (o TUser) DeleteFromRedis(conn redis.Conn) error {
+func (o TUser) DeleteFromRedis(conn redis.Conn) error{
 	if o.RedisKey() == "" {
 		return errorx.NewFromString("object TUser has not set redis key yet")
 	}

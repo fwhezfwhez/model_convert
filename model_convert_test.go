@@ -3,6 +3,7 @@ package model_convert
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestSplit2(t *testing.T) {
@@ -65,12 +66,13 @@ func TestTableToStruct(t *testing.T) {
 // generate model with json/form/gorm tag from database
 func TestTableToStructWithTag(t *testing.T) {
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
-	tableName := "user_info"
+	tableName := "prop_config"
 	fmt.Println(TableToStructWithTag(dataSouce, tableName, "postgres"))
 }
 
 // add json and form for a go model
 func TestAddJSONFormTag(t *testing.T) {
+	fmt.Println(time.Now().Unix())
 	fmt.Println(AddJSONFormTag(`
 	`))
 }

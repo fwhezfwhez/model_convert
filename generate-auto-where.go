@@ -66,17 +66,17 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
     var start,end time.Time
     if startTimeStr != "" && endTimeStr != "" {
         var e error
-        start, e = time.ParseLocation("${layout}", startTimeStr, ${time_zone})
+        start, e = time.ParseInLocation("${layout}", startTimeStr, ${time_zone})
         if e!=nil {
             c.JSON(400, gin.H{"message": e.Error()})
             return
         }
-        end, e = time.ParseLocation("${layout}", endTimeStr, ${time_zone})
+        end, e = time.ParseInLocation("${layout}", endTimeStr, ${time_zone})
         if e!=nil {
             c.JSON(400, gin.H{"message": e.Error()})
             return
         }
-        engine = engine.Where("${tag_name} between ? and ?", start, end.Add(0, 0, 1))
+        engine = engine.Where("${tag_name} between ? and ?", start, end.AddDate(0, 0, 1))
     }
 `
 				tmp = strings.Replace(tmp, "${layout}", layout, -1)

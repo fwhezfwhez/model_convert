@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestGenerateWhere(t *testing.T) {
@@ -120,19 +121,23 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type LingqianBalance struct {
-		GameId        int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		GameAreaId    int    `gorm:"column:game_area_id;default:" json:"game_area_id" form:"game_area_id"`
-		UserId        int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
-		OpenId        string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
-		Balance       int    `gorm:"column:balance;default:" json:"balance" form:"balance"`
-		HistoryCashed int    `gorm:"column:history_cashed;default:" json:"history_cashed" form:"history_cashed"`
-		Id            int    `gorm:"column:id;default:" json:"id" form:"id"`
-		Origin        int    `gorm:"column:origin;default:" json:"origin" form:"origin"`
+	type CouponRecord struct {
+		Id           int       `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId       int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		UserId       int       `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		ShopConfigId int       `gorm:"column:shop_config_id;default:" json:"shop_config_id" form:"shop_config_id"`
+		PropName     string    `gorm:"column:prop_name;default:" json:"prop_name" form:"prop_name"`
+		PropNum      int       `gorm:"column:prop_num;default:" json:"prop_num" form:"prop_num"`
+		CreatedAt    time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+		CostPropId   int       `gorm:"column:cost_prop_id;default:" json:"cost_prop_id" form:"cost_prop_id"`
+		CostPropName string    `gorm:"column:cost_prop_name;default:" json:"cost_prop_name" form:"cost_prop_name"`
+		OrderId      string    `gorm:"column:order_id;default:" json:"order_id" form:"order_id"`
+
+		CostNum int `gorm:"column:cost_num;default:" json:"cost_num" form:"cost_num"`
 	}
 
-	rs := GenerateCRUD(LingqianBalance{}, map[string]string{
-		"${model}": "payModel.LingqianBalance",
+	rs := GenerateCRUD(CouponRecord{}, map[string]string{
+		"${model}": "shopModel.CouponRecord",
 		"${handle_error}": `common.SaveError(errorx.Wrap(e))`,
 		"${db_instance}": "db.DB",
 	})

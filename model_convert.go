@@ -331,11 +331,20 @@ func (o ${structName}) RedisKey() string {
 	return ""
 }
 
+func (o ${structName}) ArrayRedisKey() string {
+	// TODO set its array key
+	return ""
+}
+
 func  (o ${structName}) RedisSecondDuration() int {
     // TODO set its redis duration, default 1-7 day,  return -1 means no time limit
     return int(time.Now().Unix() % 7 + 1) * 24 * 60 * 60
 }
 
+// TODO,set using db or not. If set false, o.MustGet() will never get its data from db.
+func (o ${structName}) UseDB() bool {
+	return false
+}
 
 func (o *${structName}) GetFromRedis(conn redis.Conn) error {
 	if o.RedisKey() == "" {
@@ -361,6 +370,39 @@ func (o *${structName}) GetFromRedis(conn redis.Conn) error {
 		return errorx.Wrap(e)
 	}
 	return nil
+}
+
+func (o *${structName}) ArrayGetFromRedis(conn redis.Conn) ([]${structName}, error) {
+	if o.ArrayRedisKey() == "" {
+		return nil, errorx.NewFromString("object ${structName} has not set redis key yet")
+	}
+
+	var list = make([]${structName}, 0, 10)
+	buf, e := redis.Bytes(conn.Do("GET", o.ArrayRedisKey()))
+
+	// avoid passing through and hit database
+	// When o.ArrayMustGet() not found both in redis and db, will set its key DISABLE
+	// and return 'fmt.Errorf("not found record in db nor redis")'
+	if e == nil && string(buf) == "DISABLE" {
+		return nil, fmt.Errorf("not found record in db nor redis")
+	}
+
+	// Not found in redis
+	if e == redis.ErrNil {
+		return nil, e
+	}
+
+	// Server error, should be logged by caller
+	if e != nil && e != redis.ErrNil {
+		return nil, errorx.Wrap(e)
+	}
+
+	e = json.Unmarshal(buf, &list)
+
+	if e != nil {
+		return nil, errorx.Wrap(e)
+	}
+	return list, nil
 }
 
 // engine should prepare its condition.
@@ -409,6 +451,46 @@ func (o *${structName}) MustGet(conn redis.Conn, engine *gorm.DB) error {
 	return nil
 }
 
+func (o *${structName}) ArrayMustGet(conn redis.Conn, engine *gorm.DB) ([]${structName}, error) {
+	list, e := o.ArrayGetFromRedis(conn)
+	// When redis key stores its value 'DISABLE', will returns notFoundError and no need to query from db any more
+	// When call ArrayDeleteFromRedis(), will activate its redis and db query
+	if e != nil && e.Error() == "not found record in db nor redis" {
+		return nil, e
+	}
+	// get from redis success.
+	if e == nil {
+		return list, nil
+	}
+	// get from redis fail, try db
+	if e != nil {
+		var count int
+		if e2 := engine.Count(&count).Error; e2 != nil {
+			return nil, errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e2))
+		}
+		if count == 0 {
+			var notFound = fmt.Errorf("not found record in db nor redis")
+			if o.RedisSecondDuration() == -1 {
+				conn.Do("SET", o.ArrayRedisKey(), "DISABLE", "NX")
+			} else {
+				conn.Do("SET", o.ArrayRedisKey(), "DISABLE", "EX", o.RedisSecondDuration(), "NX")
+			}
+			return nil, notFound
+		}
+
+		if e3 := engine.Find(&list).Error; e3 != nil {
+			return nil, errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e3))
+		}
+		// try sync to redis
+		if e == redis.ErrNil {
+			o.ArraySyncToRedis(conn, list)
+			return list, nil
+		}
+		return nil, errorx.Wrap(e)
+	}
+	return nil, nil
+}
+
 func (o ${structName}) SyncToRedis(conn redis.Conn) error {
 	if o.RedisKey() == "" {
 		return errorx.NewFromString("object ${structName} has not set redis key yet")
@@ -429,14 +511,43 @@ func (o ${structName}) SyncToRedis(conn redis.Conn) error {
 	return nil
 }
 
-func (o ${structName}) DeleteFromRedis(conn redis.Conn) error{
-	if o.RedisKey() == "" {
+func (o ${structName}) ArraySyncToRedis(conn redis.Conn, list []${structName}) error {
+	if o.ArrayRedisKey() == "" {
 		return errorx.NewFromString("object ${structName} has not set redis key yet")
 	}
-	if _, e := conn.Do("DEL", o.RedisKey()); e != nil {
+	buf, e := json.Marshal(list)
+	if e != nil {
 		return errorx.Wrap(e)
 	}
+	if o.RedisSecondDuration() == -1 {
+		if _, e := conn.Do("SET", o.ArrayRedisKey(), buf); e != nil {
+			return errorx.Wrap(e)
+		}
+	} else {
+		if _, e := conn.Do("SETEX", o.ArrayRedisKey(), o.RedisSecondDuration(), buf); e != nil {
+			return errorx.Wrap(e)
+		}
+	}
 	return nil
+}
+
+func (o ${structName}) DeleteFromRedis(conn redis.Conn) error{
+	if o.RedisKey() != "" {
+		if _, e := conn.Do("DEL", o.RedisKey()); e != nil {
+		    return errorx.Wrap(e)
+	    }
+	}
+    
+    if o.ArrayRedisKey() != "" {
+	    if _, e := conn.Do("DEL", o.ArrayRedisKey()); e != nil {
+	    	return errorx.Wrap(e)
+    	}
+    }
+
+	return nil
+}
+func (o ${structName}) ArrayDeleteFromRedis(conn redis.Conn) error{
+	return o.DeleteFromRedis(conn)
 }
 `
 	// extra = strings.ReplaceAll(extra,"${structName}", UnderLineToHump(HumpToUnderLine(tableName)))
