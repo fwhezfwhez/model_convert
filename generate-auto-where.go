@@ -60,25 +60,26 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 					timeZone = "time.Local"
 				}
 				tmp := `
-    startTimeStr := c.DefaultQuery("start_time", "")
-    endTimeStr := c.DefaultQuery("end_time", "")
+    ${tag_name_lower_first}StartTimeStr := c.DefaultQuery("${tag_name}_start", "")
+    ${tag_name_lower_first}EndTimeStr := c.DefaultQuery("${tag_name}_end", "")
 
-    var start,end time.Time
-    if startTimeStr != "" && endTimeStr != "" {
+    var ${tag_name_lower_first}Start,${tag_name_lower_first}End time.Time
+    if ${tag_name_lower_first}StartTimeStr != "" && ${tag_name_lower_first}EndTimeStr != "" {
         var e error
-        start, e = time.ParseInLocation("${layout}", startTimeStr, ${time_zone})
+        ${tag_name_lower_first}Start, e = time.ParseInLocation("${layout}", ${tag_name_lower_first}StartTimeStr, ${time_zone})
         if e!=nil {
             c.JSON(400, gin.H{"message": e.Error()})
             return
         }
-        end, e = time.ParseInLocation("${layout}", endTimeStr, ${time_zone})
+        ${tag_name_lower_first}End, e = time.ParseInLocation("${layout}", ${tag_name_lower_first}EndTimeStr, ${time_zone})
         if e!=nil {
             c.JSON(400, gin.H{"message": e.Error()})
             return
         }
-        engine = engine.Where("${tag_name} between ? and ?", start, end.AddDate(0, 0, 1))
+        engine = engine.Where("${tag_name} between ? and ?", ${tag_name_lower_first}Start,  ${tag_name_lower_first}End.AddDate(0, 0, 1))
     }
 `
+				tmp = strings.Replace(tmp, "${tag_name_lower_first}", LowerFirstLetter(UnderLineToHump(tagName)), -1)
 				tmp = strings.Replace(tmp, "${layout}", layout, -1)
 				tmp = strings.Replace(tmp, "${time_zone}", timeZone, -1)
 
@@ -325,7 +326,7 @@ func ${handler_name} (c *gin.Context) {
     if param.RedisKey() != "" {
         conn := ${redis_conn}
         defer conn.Close()
-        param.SyncToRedis(conn)
+        param.DeleteFromRedis(conn)
     }
     c.JSON(200, gin.H{"message": "success", "data": param})
 }

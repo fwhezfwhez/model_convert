@@ -16,6 +16,7 @@ func TestGenerateWhere(t *testing.T) {
 
 		TemplateId string `gorm:"column:template_id;default:" json:"template_id" form:"template_id"`
 		State      int    `gorm:"column:state;default:" json:"state" form:"state"`
+		CreatedAt time.Time `gorm:"column:created_at;default:" json:"created_at"`
 	}
 	fmt.Println(GenerateListWhere(VxTemplateUser{}, false, map[string]string{
 		"${jump_fields}": "password,game_id",
@@ -121,23 +122,21 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type CouponRecord struct {
-		Id           int       `gorm:"column:id;default:" json:"id" form:"id"`
-		GameId       int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		UserId       int       `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
-		ShopConfigId int       `gorm:"column:shop_config_id;default:" json:"shop_config_id" form:"shop_config_id"`
-		PropName     string    `gorm:"column:prop_name;default:" json:"prop_name" form:"prop_name"`
-		PropNum      int       `gorm:"column:prop_num;default:" json:"prop_num" form:"prop_num"`
-		CreatedAt    time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		CostPropId   int       `gorm:"column:cost_prop_id;default:" json:"cost_prop_id" form:"cost_prop_id"`
-		CostPropName string    `gorm:"column:cost_prop_name;default:" json:"cost_prop_name" form:"cost_prop_name"`
-		OrderId      string    `gorm:"column:order_id;default:" json:"order_id" form:"order_id"`
-
-		CostNum int `gorm:"column:cost_num;default:" json:"cost_num" form:"cost_num"`
+	type UserRank struct {
+		Id                          int    `gorm:"column:id;default:" json:"id" form:"id"`
+		Title                       string `gorm:"column:title;default:" json:"title" form:"title"`
+		TitleId                     int    `gorm:"column:title_id;default:" json:"title_id" form:"title_id"`
+		Url                         string `gorm:"column:url;default:" json:"url" form:"url"`
+		SerialWinTimes              int    `gorm:"column:serial_win_times;default:" json:"serial_win_times" form:"serial_win_times"`
+		ExtraSendMedalNum           int    `gorm:"column:extra_send_medal_num;default:" json:"extra_send_medal_num" form:"extra_send_medal_num"`
+		UpgradeMedalNum             int    `gorm:"column:upgrade_medal_num;default:" json:"upgrade_medal_num" form:"upgrade_medal_num"`
+		IsProtected                 int    `gorm:"column:is_protected;default:" json:"is_protected" form:"is_protected"`
+		CrossSeasonDecreaseMedalNum int    `gorm:"column:cross_season_decrease_medal_num;default:" json:"cross_season_decrease_medal_num" form:"cross_season_decrease_medal_num"`
+		CrossSeasonReduce           bool   `gorm:"column:cross_season_reduce;default:" json:"cross_season_reduce" form:"cross_season_reduce"`
 	}
 
-	rs := GenerateCRUD(CouponRecord{}, map[string]string{
-		"${model}": "shopModel.CouponRecord",
+	rs := GenerateCRUD(UserRank{}, map[string]string{
+		"${model}": "rankModel.UserRank",
 		"${handle_error}": `common.SaveError(errorx.Wrap(e))`,
 		"${db_instance}": "db.DB",
 	})
