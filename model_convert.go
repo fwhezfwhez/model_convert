@@ -330,14 +330,18 @@ import (
 `
 
 	var extra = `
+var ${structName}RedisKeyFormat = ""
+
 func (o ${structName}) RedisKey() string {
-	// TODO set its redis key
-	return ""
-}
+	// TODO set its redis key and required args
+	return fmt.Sprintf(${structName}RedisKeyFormat, )
+}	
+
+var Array${structName}RedisKeyFormat = ""
 
 func (o ${structName}) ArrayRedisKey() string {
-	// TODO set its array key
-	return ""
+	// TODO set its array key and required args
+	return fmt.Sprintf(Array${structName}RedisKeyFormat,)
 }
 
 func  (o ${structName}) RedisSecondDuration() int {
@@ -679,7 +683,7 @@ const (
 	${structName}CacheMaxLength = 5000
 	// When faced with max cap, will delete 2000/5 data from map and arr
 	// DeleteRate can't be zero.
-	DeleteRate = 5
+	${structName}DeleteRate = 5
 	// Whether use cache
 	${structName}CacheSwitch = false
 )
@@ -755,7 +759,7 @@ const (
 	Array${structName}CacheMaxLength = 5000
 	// When faced with max cap, will delete 2000/5 data from map and arr
 	// DeleteRate can't be zero.
-	ArrayDeleteRate = 5
+	Array${structName}DeleteRate = 5
 	// Whether use cache
 	Array${structName}CacheSwitch = false
 )
@@ -925,20 +929,6 @@ func Split2(s string, sub string, tmp *string, rs *[]string) {
 	}
 }
 
-// HumpToUnderLine 驼峰转下划线
-func HumpToUnderLine(s string) string {
-	if s == "ID" {
-		return "id"
-	}
-	var rs string
-	elements := FindUpperElement(s)
-	for _, e := range elements {
-		s = strings.Replace(s, e, "_"+strings.ToLower(e), -1)
-	}
-	rs = strings.Trim(s, " ")
-	rs = strings.Trim(rs, "\t")
-	return strings.Trim(rs, "_")
-}
 
 // FindUpperElement 找到字符串中大写字母的列表,附属于HumpToUnderLine
 func FindUpperElement(s string) []string {

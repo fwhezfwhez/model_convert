@@ -15,6 +15,25 @@ func UpperFirstLetter(s string) string {
 	return strings.ToUpper(string(s[0])) + s[1:]
 }
 
+// HumpToUnderLine 驼峰转下划线
+func HumpToUnderLine(s string) string {
+	if s == "ID" {
+		return "id"
+	}
+	var rs string
+	elements := FindUpperElement(s)
+	for _, e := range elements {
+		s = strings.Replace(s, e, "_"+strings.ToLower(e), -1)
+	}
+	rs = strings.Trim(s, " ")
+	rs = strings.Trim(rs, "\t")
+	return strings.Trim(rs, "_")
+}
+func URLLetter(s string) string {
+	s1:= HumpToUnderLine(s)
+	return strings.Join(strings.Split(s1, "_"), "-")
+}
+
 func GetZeroValue(src interface{}) string {
 	switch src.(type) {
 	case int, int8, int16, int32, int64, float32, float64, uint, uint8, uint16, uint32, uint64:

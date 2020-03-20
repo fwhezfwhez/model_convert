@@ -122,21 +122,18 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type UserRank struct {
-		Id                          int    `gorm:"column:id;default:" json:"id" form:"id"`
-		Title                       string `gorm:"column:title;default:" json:"title" form:"title"`
-		TitleId                     int    `gorm:"column:title_id;default:" json:"title_id" form:"title_id"`
-		Url                         string `gorm:"column:url;default:" json:"url" form:"url"`
-		SerialWinTimes              int    `gorm:"column:serial_win_times;default:" json:"serial_win_times" form:"serial_win_times"`
-		ExtraSendMedalNum           int    `gorm:"column:extra_send_medal_num;default:" json:"extra_send_medal_num" form:"extra_send_medal_num"`
-		UpgradeMedalNum             int    `gorm:"column:upgrade_medal_num;default:" json:"upgrade_medal_num" form:"upgrade_medal_num"`
-		IsProtected                 int    `gorm:"column:is_protected;default:" json:"is_protected" form:"is_protected"`
-		CrossSeasonDecreaseMedalNum int    `gorm:"column:cross_season_decrease_medal_num;default:" json:"cross_season_decrease_medal_num" form:"cross_season_decrease_medal_num"`
-		CrossSeasonReduce           bool   `gorm:"column:cross_season_reduce;default:" json:"cross_season_reduce" form:"cross_season_reduce"`
+	type ModuleControlConfig struct {
+		Id          int    `gorm:"column:id;default:" json:"id" form:"id"`
+		ModuleId    int    `gorm:"column:module_id;default:" json:"module_id" form:"module_id"`
+		ModuleName  string `gorm:"column:module_name;default:" json:"module_name" form:"module_name"`
+		Description string `gorm:"column:description;default:" json:"description" form:"description"`
+		GameId      int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		GameAreaId  int    `gorm:"column:game_area_id;default:" json:"game_area_id" form:"game_area_id"`
+		State       int    `gorm:"column:state;default:" json:"state" form:"state"`
 	}
-
-	rs := GenerateCRUD(UserRank{}, map[string]string{
-		"${model}": "rankModel.UserRank",
+	rs := GenerateCRUD(ModuleControlConfig{}, map[string]string{
+		"${generate_to_pkg}": "backendService",
+		"${model}": "backendModel.ModuleControlConfig",
 		"${handle_error}": `common.SaveError(errorx.Wrap(e))`,
 		"${db_instance}": "db.DB",
 	})
