@@ -1,4 +1,4 @@
-package model_convert
+﻿package model_convert
 
 import (
 	"bufio"
@@ -879,7 +879,7 @@ func typeConvert(s string) string {
 			return "int"
 		}
 		if strings.HasPrefix(s, "varchar") {
-			return "int"
+			return "string"
 		}
 		if s == "json" {
 			return "json.RawMessage"
