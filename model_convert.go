@@ -3,11 +3,12 @@ package model_convert
 import (
 	"bufio"
 	"fmt"
+	"strings"
+
 	"github.com/fwhezfwhez/errorx"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"strings"
 )
 
 const (
@@ -120,7 +121,7 @@ func (mc *ModelConvert) Generate(tables ...string) (string, error) {
 		if e := mc.Db.Raw(FindColumnsSql, tableName).Find(&columns).Error; e != nil {
 			return "", errorx.New(e)
 		}
-		if ! mc.HasTag() {
+		if !mc.HasTag() {
 			for _, column := range columns {
 				line = fmt.Sprintf("    %s  %s\n", UnderLineToHump(column.ColumnName), typeConvert(column.ColumnType))
 				columnString = columnString + line
@@ -285,7 +286,7 @@ func TableToStruct(dataSource string, tableName string, dialect ...string) strin
 }
 
 // 数据库表转go model 带tag
-func TableToStructWithTag(dataSource string, tableName string, dialect ... string) string {
+func TableToStructWithTag(dataSource string, tableName string, dialect ...string) string {
 	columnString := ""
 	tmp := ""
 
@@ -718,7 +719,7 @@ func (o *${structName}) SyncToCache() {
 		return
 	}
 
-	if DeleteRate == 0 || DeleteRate < 0 {
+	if ${structName}DeleteRate == 0 || ${structName}DeleteRate < 0 {
 		return
 	}
 
@@ -731,9 +732,11 @@ func (o *${structName}) SyncToCache() {
 
 	leng := len(${structName}CacheKeyOrder)
 	if leng >= ${structName}CacheMaxLength {
-		delta := ${structName}CacheMaxLength / DeleteRate
+		delta := ${structName}CacheMaxLength / ${structName}DeleteRate
 		for i := 0; i < delta; i++ {
-			delete(${structName}Cache, ${structName}CacheKeyOrder[i])
+			if _, ok := ${structName}Cache[${structName}CacheKeyOrder[i]]; ok {
+				delete(${structName}Cache, ${structName}CacheKeyOrder[i])
+            }
 		}
 		${structName}CacheKeyOrder = ${structName}CacheKeyOrder[delta:]
 	}
@@ -793,7 +796,7 @@ func (o *${structName}) ArraySyncToCache(arr []${structName}) {
 		return
 	}
 
-	if ArrayDeleteRate == 0 || ArrayDeleteRate < 0 {
+	if Array${structName}DeleteRate == 0 || Array${structName}DeleteRate < 0 {
 		return
 	}
 
@@ -806,9 +809,11 @@ func (o *${structName}) ArraySyncToCache(arr []${structName}) {
 
 	leng := len(Array${structName}CacheKeyOrder)
 	if leng >= Array${structName}CacheMaxLength {
-		delta := Array${structName}CacheMaxLength / ArrayDeleteRate
+		delta := Array${structName}CacheMaxLength / Array${structName}DeleteRate
 		for i := 0; i < delta; i++ {
-			delete(Array${structName}Cache, Array${structName}CacheKeyOrder[i])
+			if _, ok := Array${structName}Cache[Array${structName}CacheKeyOrder[i]]; ok {
+				delete(Array${structName}Cache, Array${structName}CacheKeyOrder[i])
+            }
 		}
 		Array${structName}CacheKeyOrder = Array${structName}CacheKeyOrder[delta:]
 	}
@@ -819,6 +824,231 @@ func (o *${structName}) ArraySyncToCache(arr []${structName}) {
 
 // 2nd-cache Tail
 
+// flexible-cache Header
+// func (o ${structName}) ${cache_name}Key() string{
+// 	// TODO-Set cache redis key
+// 	return ""
+// }
+// func (o ${structName}) ${cache_name}Duration() int{
+// 	// TODO-Set cache redis key expire duration. Default 1-7 days
+//     return int(time.Now().Unix() % 7 + 1) * 24 * 60 * 60
+// }
+// func (o *${structName}) ${cache_name}MustGet(conn redis.Conn, source func(${cache_name} *${cache_type})error) (${cache_type}, error) {
+
+// 	rs, e:= redis.${Cache_type}(conn.Do("GET", o.${cache_name}Key()))
+// 	if e !=nil {
+// 		if e == redis.ErrNil {
+//             if e:=source(&rs); e!=nil {
+// 				return rs, errorx.Wrap(e)
+// 			}
+// 			if _, e= conn.Do("SETEX",  o.${cache_name}Key(), ${cache_name}Duration(), rs),; e!=nil {
+// 				return rs, errorx.Wrap(e)
+// 			}
+// 			return rs,nil
+// 		}
+// 		return rs, errorx.Wrap(e)
+// 	}
+// 	return rs,nil
+
+// }
+// flexible-cache Tail
+
+// no-decode Header
+// 
+// MustGetNoDecode do most similar work as MustGet do, but it will not unmarshal data from redis into 'o', in the meanwhile, will return its raw json stream as return.
+// This function aims to save cost of decoding in the only case that you want to return 'o' itself and has nothing changed to inner values.
+// 'engine' should prepare its condition.
+// if record not found,it will return 'var notFound = fmt.Errorf("not found record in db nor redis")'.
+// If you want to ignore not found error, do it like:
+// if buf, e:= o.MustGetNoDecode(conn, engine.Model(Model{}).Where("condition =?", arg)).Error;e!=nil {
+//     if e.Error() == "not found record in db nor redis" || e == redis.ErrNil {
+//         log.Println(e)
+//         return
+//     }
+// }
+// 
+func (o *${structName}) MustGetNoDecode(conn redis.Conn, engine *gorm.DB) (json.RawMessage, error) {
+	var shouldSyncToCache bool
+
+	if ${structName}CacheSwitch {
+		if e := o.GetFromCache(); e == nil {
+			return nil, nil
+		}
+		defer func() {
+			if shouldSyncToCache {
+				fmt.Println("exec sync to cache")
+				o.SyncToCache()
+			}
+		}()
+	}
+
+	arrBuf, e := o.GetFromRedisNoDecode(conn)
+    // When redis key stores its value 'DISABLE', will returns notFoundError and no need to query from db any more
+    if e!=nil && e.Error() == "not found record in db nor redis" {
+       return nil, e
+    }
+
+	if e == nil {
+		shouldSyncToCache = true
+		return arrBuf, nil
+	}
+	if e != nil {
+		var count int
+		if e2 := engine.Count(&count).Error; e2 != nil {
+			return nil, errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e2))
+		}
+		if count == 0 {
+			var notFound = fmt.Errorf("not found record in db nor redis")
+			if o.RedisSecondDuration() == -1 {
+				conn.Do("SET", o.RedisKey(), "DISABLE", "NX")
+			} else {
+				conn.Do("SET", o.RedisKey(), "DISABLE", "EX", o.RedisSecondDuration(), "NX")
+			}
+	        return nil, notFound
+		}
+
+		if e3 := engine.First(&o).Error; e3 != nil {
+			return nil, errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e3))
+		}
+		shouldSyncToCache = true
+
+		if e == redis.ErrNil {
+			o.SyncToRedis(conn)
+			return nil,nil 
+		}
+		return nil, errorx.Wrap(e)
+	}
+	return nil,nil
+}
+
+// GetFromRedisNoDecode will return its json raw stream and will not decode into 'o'.
+// It aims to save cost of decoding if json stream is decoded slowly.
+func (o *${structName}) GetFromRedisNoDecode(conn redis.Conn) (json.RawMessage, error) {
+	if o.RedisKey() == "" {
+		return nil, errorx.NewFromString("object ${structName} has not set redis key yet")
+	}
+	buf,e:= redis.Bytes(conn.Do("GET", o.RedisKey()))
+
+    if e==nil && string(buf)=="DISABLE"{
+        return nil, fmt.Errorf("not found record in db nor redis")
+    }
+
+	if e == redis.ErrNil {
+		return nil, e
+	}
+
+	if e != nil && e != redis.ErrNil {
+		return nil, errorx.Wrap(e)
+	}
+
+	return buf, nil
+}
+
+// ArrayMustGetNoDecode will not unmarshal json stream to 'arr' and return json.Rawmessage as return value instead if it's found in redis,
+// otherwise will return arr from cache or db.
+//
+// This function aims to save cost of decoding in the read-only case of 'o'. It means you should do nothing changed to its json value. 
+/* 
+	arr, arrBuf, e:= o.ArrayMustGetNoDecode(conn, engine)
+	if e!=nil {
+	// handle error
+	}
+
+	if len(arrBuf) >0 {
+	c.JSON(200, gin.H{"message":"success", "data": arrBuf})
+	} else {
+		c.JSON(200, gin.H{"message":"success", "data": arr})
+	}
+*/
+func (o *${structName}) ArrayMustGetNoDecode(conn redis.Conn, engine *gorm.DB) ([]${structName},json.RawMessage, error) {
+	var shouldSyncToCache bool
+	var arr []${structName}
+
+	if Array${structName}CacheSwitch {
+		if arr, e := o.ArrayGetFromCache(); e == nil {
+			return  arr, nil,  nil
+		}
+		defer func() {
+			if shouldSyncToCache {
+				fmt.Println("exec sync to cache")
+				o.ArraySyncToCache(arr)
+			}
+		}()
+	}
+
+
+	arrBuf, e := o.ArrayGetFromRedisNoDecode(conn)
+	// When redis key stores its value 'DISABLE', will returns notFoundError and no need to query from db any more
+	// When call ArrayDeleteFromRedis(), will activate its redis and db query
+	if e != nil && e.Error() == "not found record in db nor redis" {
+		return nil,nil, e
+	}
+	// get from redis success.
+	if e == nil {
+		// shouldSyncToCache = true
+		// arr = list
+		return nil, arrBuf, nil
+	}
+	// get from redis fail, try db
+	if e != nil {
+		var list = make([]${structName},0, 100)
+		var count int
+		if e2 := engine.Count(&count).Error; e2 != nil {
+			return nil,nil, errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e2))
+		}
+		if count == 0 {
+			var notFound = fmt.Errorf("not found record in db nor redis")
+			if o.RedisSecondDuration() == -1 {
+				conn.Do("SET", o.ArrayRedisKey(), "DISABLE", "NX")
+			} else {
+				conn.Do("SET", o.ArrayRedisKey(), "DISABLE", "EX", o.RedisSecondDuration(), "NX")
+			}
+			return nil, nil, notFound
+		}
+
+		if e3 := engine.Find(&list).Error; e3 != nil {
+			return nil, nil, errorx.GroupErrors(errorx.Wrap(e), errorx.Wrap(e3))
+		}
+
+		shouldSyncToCache = true
+		arr = list
+		// try sync to redis
+		if e == redis.ErrNil {
+			o.ArraySyncToRedis(conn, list)
+			return list,  nil, nil
+		}
+		return nil, nil,  errorx.Wrap(e)
+	}
+	return nil, nil, nil
+}
+
+func (o *${structName}) ArrayGetFromRedisNoDecode(conn redis.Conn) (json.RawMessage, error) {
+	if o.ArrayRedisKey() == "" {
+		return nil, errorx.NewFromString("object ${structName} has not set redis key yet")
+	}
+
+	buf, e := redis.Bytes(conn.Do("GET", o.ArrayRedisKey()))
+
+	// avoid passing through and hit database
+	// When o.ArrayMustGet() not found both in redis and db, will set its key DISABLE
+	// and return 'fmt.Errorf("not found record in db nor redis")'
+	if e == nil && string(buf) == "DISABLE" {
+		return nil, fmt.Errorf("not found record in db nor redis")
+	}
+
+	// Not found in redis
+	if e == redis.ErrNil {
+		return nil, e
+	}
+
+	// Server error, should be logged by caller
+	if e != nil && e != redis.ErrNil {
+		return nil, errorx.Wrap(e)
+	}
+
+	return buf, nil
+}
+// no-decode Tail
 // Auto-Generate Tail
 `
 
@@ -826,7 +1056,6 @@ func (o *${structName}) ArraySyncToCache(arr []${structName}) {
 	extra = strings.Replace(extra, "${structName}", UnderLineToHump(HumpToUnderLine(tableName)), -1)
 	extra = strings.Replace(extra, "${count_json_tag}", "`json:\"count\"`", -1)
 	extra = strings.Replace(extra, "${data_json_tag}", "`json:\"data\"`", -1)
-
 
 	rs := fmt.Sprintf("%stype %s struct{\n%s}\n\nfunc (o %s) TableName() string {\n    return \"%s\" \n}\n\n%s", prefix, UnderLineToHump(HumpToUnderLine(tableName)), columnString, UnderLineToHump(tableName), tableName, extra)
 	return rs
@@ -928,7 +1157,6 @@ func Split2(s string, sub string, tmp *string, rs *[]string) {
 		}
 	}
 }
-
 
 // FindUpperElement 找到字符串中大写字母的列表,附属于HumpToUnderLine
 func FindUpperElement(s string) []string {

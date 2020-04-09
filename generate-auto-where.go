@@ -638,7 +638,7 @@ func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 // Use codes below like:
 /*
 	r := gin.Default()
-	r.POST("/{${url_letters}/", ${generate_to_pkg}.HTTPAdd${struct_name})
+	r.POST("/${url_letters}/", ${generate_to_pkg}.HTTPAdd${struct_name})
 	r.PATCH("/${url_letters}/:id/", ${generate_to_pkg}.HTTPUpdate${struct_name})
 	r.DELETE("/${url_letters}/:id/", ${generate_to_pkg}.HTTPDelete${struct_name})
 	r.GET("/${url_letters}/", ${generate_to_pkg}.HTTPList${struct_name})
