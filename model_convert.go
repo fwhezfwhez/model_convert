@@ -336,7 +336,8 @@ var ${structName}RedisKeyFormat = ""
 func (o ${structName}) RedisKey() string {
 	// TODO set its redis key and required args
 	return fmt.Sprintf(${structName}RedisKeyFormat, )
-}	
+}
+
 
 var Array${structName}RedisKeyFormat = ""
 
@@ -1083,6 +1084,9 @@ func typeConvert(s string) string {
 	}
 	// postgres
 	{
+		if in(s, []string{"double precision", "double"}) {
+			return "float64"
+		}
 		if in(s, []string{"bigint", "bigserial", "integer", "smallint", "serial", "big serial"}) {
 			return "int"
 		}

@@ -21,7 +21,7 @@ import (
 // - ${jump_fields}, "password,pw"
 // - ${layout}, "2006-01-02 15:04:03"
 // - ${time_zone} "time.Local"
-func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[string]string) string {
+func GenerateListWhere(src interface{}, withListArgs bool, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
 			map[string]string{},
@@ -32,7 +32,7 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 `
 	vValue := reflect.ValueOf(src)
 	vType := reflect.TypeOf(src)
-	handle := func() (string) {
+	handle := func() string {
 		var result string
 		for i := 0; i < vValue.NumField(); i++ {
 			// only handle basic types, otherwise continue
@@ -55,6 +55,10 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 				if layout == "" {
 					layout = "2006-01-02 15:04:05"
 				}
+				listLayout := replacement[0]["${list_layout}"]
+				if layout == "" {
+					layout = "2006-01-02"
+				}
 				timeZone := replacement[0]["time_zone"]
 				if timeZone == "" {
 					timeZone = "time.Local"
@@ -66,12 +70,12 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
     var ${tag_name_lower_first}Start,${tag_name_lower_first}End time.Time
     if ${tag_name_lower_first}StartTimeStr != "" && ${tag_name_lower_first}EndTimeStr != "" {
         var e error
-        ${tag_name_lower_first}Start, e = time.ParseInLocation("${layout}", ${tag_name_lower_first}StartTimeStr, ${time_zone})
+        ${tag_name_lower_first}Start, e = time.ParseInLocation("${list_layout}", ${tag_name_lower_first}StartTimeStr, ${time_zone})
         if e!=nil {
             c.JSON(400, gin.H{"message": e.Error()})
             return
         }
-        ${tag_name_lower_first}End, e = time.ParseInLocation("${layout}", ${tag_name_lower_first}EndTimeStr, ${time_zone})
+        ${tag_name_lower_first}End, e = time.ParseInLocation("${list_layout}", ${tag_name_lower_first}EndTimeStr, ${time_zone})
         if e!=nil {
             c.JSON(400, gin.H{"message": e.Error()})
             return
@@ -81,6 +85,8 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 `
 				tmp = strings.Replace(tmp, "${tag_name_lower_first}", LowerFirstLetter(UnderLineToHump(tagName)), -1)
 				tmp = strings.Replace(tmp, "${layout}", layout, -1)
+				tmp = strings.Replace(tmp, "${list_layout}", listLayout, -1)
+
 				tmp = strings.Replace(tmp, "${time_zone}", timeZone, -1)
 
 				tmp = strings.Replace(tmp, "${field_name}", fieldName, -1)
@@ -133,7 +139,7 @@ func GenerateListWhere(src interface{}, withListArgs bool, replacement ... map[s
 // - ${jump_fields}, "password,pw"
 // - ${layout}, "2006-01-02 15:04:03"
 // - ${time_zone} "time.Local"
-func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[string]string) string {
+func GenerateListAPI(src interface{}, withListArgs bool, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
 			map[string]string{},
@@ -155,9 +161,15 @@ func GenerateListAPI(src interface{}, withListArgs bool, replacement ... map[str
 	if replacement[0]["${util_pkg}"] == "" {
 		replacement[0]["${util_pkg}"] = "mc_util"
 	}
+	if replacement[0]["${list_layout}"] == "" {
+		replacement[0]["${list_layout}"] = "2006-01-02"
+	}
 
 	if replacement[0]["${handler_name}"] == "" {
 		replacement[0]["${handler_name}"] = "HTTPListUser"
+	}
+	if replacement[0]["${list_layout}"] == "" {
+		replacement[0]["${list_layout}"] = "2006-01-02"
 	}
 
 	vType := reflect.TypeOf(src)
@@ -417,6 +429,10 @@ func ${handler_name}(c *gin.Context) {
 // - ${handle_error} "fmt.Println(e, string(debug.Stack()))" | raven.Throw(e)
 // - ${redis_conn} "redistool.RedisPool.Get()"
 func GenerateUpdateOneAPI(src interface{}, replacement ...map[string]string) string {
+	return generateUpdateOneAPI(src, nil, replacement...)
+}
+
+func generateUpdateOneAPI(src interface{}, rangement []Field, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
 			map[string]string{},
@@ -474,12 +490,21 @@ func ${handler_name}(c *gin.Context) {
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
     }
+	
+    tran := ${db_instance}.Begin()
 
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).Updates(param).Error; e!=nil {
+    // handle none-zero
+    if e := tran.Model(&${model}{}).Where("id=?", id).Updates(param).Error; e!=nil {
+        tran.Rollback()
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
     }
+	
+    // handle zero
+	${zero_rangement}
+
+    tran.Commit()
 
     if instance.RedisKey()!=""{
         conn := ${redis_conn}
@@ -489,7 +514,60 @@ func ${handler_name}(c *gin.Context) {
     c.JSON(200, gin.H{"message": "success"})
 }
 `
+	var zeroRangement = `
+    var m =  make(map[string]interface{})
+		
+    ${fill_m}
+
+    if len(m) >0 {
+        if e := tran.Model(&${model}{}).Where("id=?", id).Updates(m).Error; e!=nil {
+            tran.Rollback()
+            ${handle_error}
+            c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
+            return
+        }
+    }
+	`
+
+	var fillM string
+	for _, v := range rangement {
+		if In(v.TagName, []string{"id", "ID"}) {
+			continue
+		}
+		if !In(v.TypeName, []string{
+			"int", "int64", "int32", "int16", "int8", "uint8", "uint16", "uint32", "uint64", "byte", "float", "float64", "float32", "float16",
+			"string",
+		}) {
+			continue
+		}
+		var tmpf string
+		switch v.TypeName {
+		case "string":
+			tmpf = `
+    if param.${field_name} == "12306" {
+        m["${tag_name}"] = ""
+    }
+
+			`
+		case "int", "int64", "int32", "int16", "int8", "uint8", "uint16", "uint32", "uint64", "byte", "float", "float64", "float32", "float16":
+			tmpf = `
+    if param.${field_name} == 12306 {
+        m["${tag_name}"] = 0
+    }
+
+			`
+		}
+
+		tmp := strings.Replace(tmpf, "${field_name}", v.FieldName, -1)
+		tmp = strings.Replace(tmp, "${tag_name}", v.TagName, -1)
+		fillM += tmp
+	}
+	zeroRangement = strings.Replace(zeroRangement, "${fill_m}", fillM, -1)
+
 	result := strings.Replace(resultf, "${handler_name}", replacement[0]["${handler_name}"], -1)
+
+	result = strings.Replace(result, "${zero_rangement}", zeroRangement, -1)
+
 	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
 	result = strings.Replace(result, "${model}", replacement[0]["${model}"], -1)
 	result = strings.Replace(result, "${handle_error}", replacement[0]["${handle_error}"], -1)
@@ -583,8 +661,8 @@ func ${handler_name}(c *gin.Context) {
 }
 `
 	result := strings.Replace(resultf, "${handler_name}", replacement[0]["${handler_name}"], -1)
-	result = strings.Replace(result, "${command_json_tag}","`json:\"commond\"`", -1)
-	result = strings.Replace(result, "${key_json_tag}","`json:\"key\"`", -1)
+	result = strings.Replace(result, "${command_json_tag}", "`json:\"commond\"`", -1)
+	result = strings.Replace(result, "${key_json_tag}", "`json:\"key\"`", -1)
 	result = strings.Replace(result, "${pkg_name_prefix}", replacement[0]["${pkg_name_prefix}"], -1)
 
 	result = strings.Replace(result, "${db_instance}", replacement[0]["${db_instance}"], -1)
@@ -597,6 +675,14 @@ func ${handler_name}(c *gin.Context) {
 	return result
 }
 
+type Field struct {
+	isZero    bool
+	TypeName  string
+	FieldName string
+	TagName   string
+	Value     interface{}
+}
+
 func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 	if len(replacement) == 0 {
 		replacement = []map[string]string{
@@ -604,7 +690,27 @@ func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 		}
 	}
 
-	modelName := reflect.TypeOf(src).Name()
+	var rangement = make([]Field, 0, 10)
+	vType := reflect.TypeOf(src)
+	vValue := reflect.ValueOf(src)
+	for i := 0; i < vType.NumField(); i++ {
+		tagStr := vType.Field(i).Tag.Get("json")
+		if tagStr == "-" || tagStr == "" {
+			continue
+		}
+		arr := strings.Split(tagStr, ",")
+		tagValue := strings.TrimSpace(arr[0])
+		valueI := vValue.Field(i).Interface()
+		rangement = append(rangement, Field{
+			isZero:    IfZero(valueI),
+			TypeName:  vType.Field(i).Type.Name(),
+			FieldName: vType.Field(i).Name,
+			TagName:   tagValue,
+			Value:     valueI,
+		})
+	}
+
+	modelName := vType.Name()
 
 	var rs string
 	replacement[0]["${handler_name}"] = "HTTPAdd" + modelName
@@ -617,13 +723,13 @@ func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 	getAPI := GenerateGetOneAPI(src, replacement...)
 
 	replacement[0]["${handler_name}"] = "HTTPUpdate" + modelName
-	updateAPI := GenerateUpdateOneAPI(src, replacement...)
+	updateAPI := generateUpdateOneAPI(src, rangement, replacement...)
 
 	replacement[0]["${handler_name}"] = "HTTPDelete" + modelName
 	deleteAPI := GenerateDeleteOneAPI(src, replacement...)
 
 	replacement[0]["${handler_name}"] = "HTTPProfileCache" + modelName
-	profileCacheAPI := GenerateCacheProfileAPI(src, replacement ...)
+	profileCacheAPI := GenerateCacheProfileAPI(src, replacement...)
 
 	var note = `
 // Auto generated by github.com/fwhezfwhez/model_convert.GenerateCRUD. You might need import:
@@ -651,7 +757,6 @@ func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 	note = strings.Replace(note, "${struct_name}", replacement[0]["${struct_name}"], -1)
 	note = strings.Replace(note, "${generate_to_pkg}", replacement[0]["${generate_to_pkg}"], -1)
 	note = strings.Replace(note, "${url_letters}", URLLetter(replacement[0]["${struct_name}"]), -1)
-
 
 	rs = fmt.Sprintf("%s%s  %s  %s  %s  %s  %s", note, addAPI, listAPI, getAPI, updateAPI, deleteAPI, profileCacheAPI)
 	rs = Format(rs)
@@ -688,14 +793,14 @@ func handleDefault(src interface{}, replacement map[string]string) {
 	if len(arr) == 2 {
 		replacement["${pkg_name_prefix}"] = arr[0] + "."
 		replacement["${struct_name}"] = arr[1]
-	} else if len(arr)==1 {
+	} else if len(arr) == 1 {
 		replacement["${struct_name}"] = arr[0]
 	} else {
 		// do nothing
 	}
 
-    if replacement["${generate_to_pkg}"] == "" {
-	    replacement["${generate_to_pkg}"] = strings.ToLower(replacement["struct_name"])
+	if replacement["${generate_to_pkg}"] == "" {
+		replacement["${generate_to_pkg}"] = strings.ToLower(replacement["struct_name"])
 	}
 	if replacement["${handle_error}"] == "" {
 		replacement["${handle_error}"] = "fmt.Println(e, string(debug.Stack()))"
