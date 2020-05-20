@@ -35,6 +35,62 @@ func TestMustGet(t *testing.T) {
 	fmt.Println(ui)
 }
 
+// 返回某个用户信息，无decode开销版本
+// 返回的[]byte值可能为空，非空时表示在redis中找到，为空时表示该记录已经被数据库找到，并被赋予了ui本身
+func TestMustGetNoDecode(t *testing.T) {
+	rp, db := initConfig()
+
+	conn := rp.Get()
+	defer conn.Close()
+
+	var ui = UserInfo{
+		UserId: 10086,
+		GameId: 78,
+	}
+
+	engine := db.Model(&ui).Where("game_id=? and user_id=?", ui.GameId, ui.UserId)
+
+	buf, e := ui.MustGetNoDecode(conn, engine)
+	if e != nil {
+		if e != redis.ErrNil && e.Error() != "not found record in db nor redis" {
+			panic(e)
+		}
+		fmt.Println("not such record")
+		return
+	}
+
+	if len(buf) > 0 {
+		fmt.Println(string(buf))
+	} else {
+		fmt.Println(ui)
+	}
+}
+
+// 返回某个用户信息，无decode开销版本
+// 返回无json-decode开销的单条数据
+func TestGetFromRedisNoDecode(t *testing.T) {
+	rp, _ := initConfig()
+
+	conn := rp.Get()
+	defer conn.Close()
+
+	var ui = UserInfo{
+		UserId: 10086,
+		GameId: 78,
+	}
+
+	buf, e := ui.GetFromRedisNoDecode(conn)
+	if e != nil {
+		if e != redis.ErrNil && e.Error() != "not found record in db nor redis" {
+			panic(e)
+		}
+		fmt.Println("not such record")
+		return
+	}
+
+	fmt.Println(string(buf))
+}
+
 // 获取某个game_id的所有用户
 func TestArrayMustGet(t *testing.T) {
 	rp, db := initConfig()
@@ -59,6 +115,58 @@ func TestArrayMustGet(t *testing.T) {
 	fmt.Println(len(arr))
 
 	fmt.Println(arr)
+}
+
+// 获取某个game_id的所有用户，无decode开销版本
+// 返回的[]byte值可能为空，非空时表示在redis中找到，为空时表示该记录已经被数据库找到，并被赋予了o本身
+func TestUserInfo_ArrayMustGetNoDecode(t *testing.T) {
+	rp, db := initConfig()
+
+	conn := rp.Get()
+	defer conn.Close()
+
+	var ui = UserInfo{
+		GameId: 78,
+	}
+
+	engine := db.Model(&ui).Where("game_id=?", ui.GameId)
+
+	arr, buf, e := ui.ArrayMustGetNoDecode(conn, engine)
+	if e != nil {
+		if e != redis.ErrNil && e.Error() != "not found record in db nor redis" {
+			panic(e)
+		}
+		fmt.Println("not such record")
+		return
+	}
+	if len(buf) == 0 {
+		fmt.Println(len(arr))
+	} else {
+		fmt.Println(len(arr))
+		fmt.Println(string(buf))
+	}
+}
+
+// 获取某个game_id的所有用户，无decode开销版本
+func TestUserInfo_ArrayGetFromRedisNoDecode(t *testing.T) {
+	rp, _ := initConfig()
+	conn := rp.Get()
+	defer conn.Close()
+
+	ui := UserInfo{
+		GameId: 78,
+	}
+
+	buf, e := ui.ArrayGetFromRedisNoDecode(conn)
+	if e != nil {
+		if e != redis.ErrNil && e.Error() != "not found record in db nor redis" {
+			panic(e)
+		}
+		fmt.Println("not such record")
+		return
+	}
+
+	fmt.Println(string(buf))
 }
 
 func initConfig() (*redis.Pool, *gorm.DB) {

@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4abcdb0d-0b7e-4878-8cb7-d115ed174fc3" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/model/user_info.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/user_info_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../model_convert.go" beforeDir="false" afterPath="$PROJECT_DIR$/../../model_convert.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/user_info_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/user_info_test.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,12 +31,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="go" value="934" />
+          <entry key="go" value="1643" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Go" value="934" />
+          <entry key="Go" value="1643" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.go.postfix.template.usages.trigger">
@@ -50,11 +48,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="23" column="32" selection-start-line="23" selection-start-column="32" selection-end-line="23" selection-end-column="32" />
+            <state relative-caret-position="282">
+              <caret line="22" column="40" lean-forward="true" selection-start-line="22" selection-end-line="23" />
               <folding>
                 <element signature="e#14#71#0" expanded="true" />
               </folding>
@@ -65,8 +63,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model/user_info.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="54" column="1" lean-forward="true" selection-start-line="54" selection-start-column="1" selection-end-line="54" selection-end-column="1" />
+            <state relative-caret-position="605">
+              <caret line="598" column="5" lean-forward="true" selection-start-line="598" selection-start-column="5" selection-end-line="598" selection-end-column="5" />
               <folding>
                 <element signature="e#15#184#0" expanded="true" />
               </folding>
@@ -74,14 +72,19 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/model/user_info_test.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
-              <caret line="42" column="22" lean-forward="true" selection-start-line="42" selection-start-column="22" selection-end-line="42" selection-end-column="22" />
+            <state relative-caret-position="360">
+              <caret line="69" column="24" lean-forward="true" selection-start-line="69" selection-start-column="24" selection-end-line="69" selection-end-column="24" />
               <folding>
                 <element signature="e#15#72#0" expanded="true" />
                 <element signature="n#!!block;n#TestMustGet#0" />
+                <element signature="n#!!block;n#TestGetFromRedisNoDecode#0" />
+                <element signature="n#!!block;n#TestGetFromRedisNoDecode#0" />
+                <element signature="n#!!block;n#TestMustGet#1" />
+                <element signature="n#!!block;n#TestUserInfo_ArrayMustGetNoDecode#0" />
+                <element signature="n#!!block;n#TestUserInfo_ArrayGetFromRedisNoDecode#0" />
                 <element signature="n#!!block;n#initConfig#0" />
               </folding>
             </state>
@@ -170,16 +173,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Go Test.TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model">
-    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="postgres-gorm-to-model" />
-      <working_directory value="$PROJECT_DIR$/" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/main.go" />
-      <package value="model_convert/examples/postgres-gorm-to-model" />
-      <directory value="$PROJECT_DIR$/" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Go Test.TestUserInfo_ArrayGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model">
     <configuration name="TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="postgres-gorm-to-model" />
       <working_directory value="$PROJECT_DIR$/model" />
@@ -191,7 +185,7 @@
       <pattern value="^TestArrayMustGet$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestMustGet in model_convert/examples/postgres-gorm-to-model/model" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="postgres-gorm-to-model" />
       <working_directory value="$PROJECT_DIR$/model" />
       <framework value="gotest" />
@@ -199,52 +193,89 @@
       <package value="model_convert/examples/postgres-gorm-to-model/model" />
       <directory value="$PROJECT_DIR$/" />
       <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestMustGet$" />
+      <pattern value="^TestGetFromRedisNoDecode$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="postgres-gorm-to-model" />
+      <working_directory value="$PROJECT_DIR$/model" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="model_convert/examples/postgres-gorm-to-model/model" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestMustGetNoDecode$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestUserInfo_ArrayGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="postgres-gorm-to-model" />
+      <working_directory value="$PROJECT_DIR$/model" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="model_convert/examples/postgres-gorm-to-model/model" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestUserInfo_ArrayGetFromRedisNoDecode$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestUserInfo_ArrayMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="postgres-gorm-to-model" />
+      <working_directory value="$PROJECT_DIR$/model" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="model_convert/examples/postgres-gorm-to-model/model" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestUserInfo_ArrayMustGetNoDecode$" />
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Go Build.go build main.go" />
-      <item itemvalue="Go Test.TestMustGet in model_convert/examples/postgres-gorm-to-model/model" />
       <item itemvalue="Go Test.TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model" />
+      <item itemvalue="Go Test.TestMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
+      <item itemvalue="Go Test.TestGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
+      <item itemvalue="Go Test.TestUserInfo_ArrayMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
+      <item itemvalue="Go Test.TestUserInfo_ArrayGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.TestUserInfo_ArrayGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
+        <item itemvalue="Go Test.TestUserInfo_ArrayMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
+        <item itemvalue="Go Test.TestGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
+        <item itemvalue="Go Test.TestMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" />
         <item itemvalue="Go Test.TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model" />
-        <item itemvalue="Go Test.TestMustGet in model_convert/examples/postgres-gorm-to-model/model" />
-        <item itemvalue="Go Build.go build main.go" />
       </list>
     </recent_temporary>
   </component>
   <component name="TestHistory">
-    <history-entry file="TestMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 27m 45s.xml">
-      <configuration name="TestMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestGetFromRedisNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 56m 50s.xml">
+      <configuration name="TestGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 28m 12s.xml">
-      <configuration name="TestMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestMustGetNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 57m 24s.xml">
+      <configuration name="TestMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 29m 22s.xml">
-      <configuration name="TestMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestMustGetNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 57m 31s.xml">
+      <configuration name="TestMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 30m 08s.xml">
-      <configuration name="TestMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestGetFromRedisNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 57m 36s.xml">
+      <configuration name="TestGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 31m 10s.xml">
-      <configuration name="TestMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestGetFromRedisNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 57m 53s.xml">
+      <configuration name="TestGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 31m 16s.xml">
-      <configuration name="TestMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestUserInfo_ArrayMustGetNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 15h 00m 04s.xml">
+      <configuration name="TestUserInfo_ArrayMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestArrayMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 33m 05s.xml">
-      <configuration name="TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestUserInfo_ArrayMustGetNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 15h 00m 41s.xml">
+      <configuration name="TestUserInfo_ArrayMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestArrayMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 33m 50s.xml">
-      <configuration name="TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestUserInfo_ArrayMustGetNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 15h 00m 50s.xml">
+      <configuration name="TestUserInfo_ArrayMustGetNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestArrayMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 34m 03s.xml">
-      <configuration name="TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestUserInfo_ArrayGetFromRedisNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 15h 03m 14s.xml">
+      <configuration name="TestUserInfo_ArrayGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestArrayMustGet_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 14h 34m 18s.xml">
-      <configuration name="TestArrayMustGet in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestUserInfo_ArrayGetFromRedisNoDecode_in_model_convert_examples_postgres-gorm-to-model_model - 2020.05.20 at 15h 03m 36s.xml">
+      <configuration name="TestUserInfo_ArrayGetFromRedisNoDecode in model_convert/examples/postgres-gorm-to-model/model" configurationId="GoTestRunConfiguration" />
     </history-entry>
   </component>
   <component name="ToolWindowManager">
@@ -252,7 +283,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
@@ -260,8 +291,8 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32899022" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32899022" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3995657" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -280,32 +311,37 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/model/user_info.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="54" column="1" lean-forward="true" selection-start-line="54" selection-start-column="1" selection-end-line="54" selection-end-column="1" />
+        <state relative-caret-position="605">
+          <caret line="598" column="5" lean-forward="true" selection-start-line="598" selection-start-column="5" selection-end-line="598" selection-end-column="5" />
           <folding>
             <element signature="e#15#184#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/model/user_info_test.go">
+    <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="42" column="22" lean-forward="true" selection-start-line="42" selection-start-column="22" selection-end-line="42" selection-end-column="22" />
+        <state relative-caret-position="282">
+          <caret line="22" column="40" lean-forward="true" selection-start-line="22" selection-end-line="23" />
           <folding>
-            <element signature="e#15#72#0" expanded="true" />
-            <element signature="n#!!block;n#TestMustGet#0" />
-            <element signature="n#!!block;n#initConfig#0" />
+            <element signature="e#14#71#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.go">
+    <entry file="file://$PROJECT_DIR$/model/user_info_test.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="23" column="32" selection-start-line="23" selection-start-column="32" selection-end-line="23" selection-end-column="32" />
+        <state relative-caret-position="360">
+          <caret line="69" column="24" lean-forward="true" selection-start-line="69" selection-start-column="24" selection-end-line="69" selection-end-column="24" />
           <folding>
-            <element signature="e#14#71#0" expanded="true" />
+            <element signature="e#15#72#0" expanded="true" />
+            <element signature="n#!!block;n#TestMustGet#0" />
+            <element signature="n#!!block;n#TestGetFromRedisNoDecode#0" />
+            <element signature="n#!!block;n#TestGetFromRedisNoDecode#0" />
+            <element signature="n#!!block;n#TestMustGet#1" />
+            <element signature="n#!!block;n#TestUserInfo_ArrayMustGetNoDecode#0" />
+            <element signature="n#!!block;n#TestUserInfo_ArrayGetFromRedisNoDecode#0" />
+            <element signature="n#!!block;n#initConfig#0" />
           </folding>
         </state>
       </provider>
