@@ -16,6 +16,7 @@ go_import_path: github.com/fwhezfwhez/model_convert
 before_install:
   # - go get -t -v ./...
   - go get github.com/fwhezfwhez/errorx
+  - git clone -b v1.4.0 https://github.com/go-sql-driver/mysql.git ${GOPATH}/src/github.com/go-sql-driver/mysql
 
 script:
   # - go test -race -coverprofile=coverage.txt -covermode=atomic
