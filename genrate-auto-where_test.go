@@ -133,7 +133,7 @@ func TestGenerateCRUD(t *testing.T) {
 	}
 	rs := GenerateCRUD(CardLibrary{}, map[string]string{
 		"${generate_to_pkg}": "model",
-		"${model}":           "model.UserInfo",
+		"${model}":           "model.CardLibrary",
 		"${handle_error}":    "fmt.Println(errorx.Wrap(e))",
 		"${db_instance}":     "db.DB",
 	})
