@@ -3,6 +3,7 @@ package model_convert
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestGenerateMDAdd(t *testing.T) {
@@ -96,23 +97,20 @@ func TestGenerateMGet(t *testing.T) {
 	fmt.Println(rs)
 }
 
-func TestGenerateMD(t *testing.T) {
-	type DzpTask struct {
-		Id            int    `gorm:"column:id;default:" json:"id" form:"id"`
-		GameId        int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		GameAreaId    int    `gorm:"column:game_area_id;default:" json:"game_area_id" form:"game_area_id"`
-		TaskUnionId   int    `gorm:"column:task_union_id;default:" json:"task_union_id" form:"task_union_id"`
-		Description   string `gorm:"column:description;default:" json:"description" form:"description"`
-		OsDescription string `gorm:"column:os_description;default:" json:"os_description" form:"os_description"`
-
-		State     int    `gorm:"column:state;default:" json:"state" form:"state"`
-		TaskTimes int    `gorm:"column:task_times;default:" json:"task_times" form:"task_times"`
-		RefreshAt string `gorm:"column:refresh_at;default:" json:"refresh_at" form:"refresh_at"`
-
-		FlexibleKey string `gorm:"column:flexible_key;default:" json:"flexible_key" form:"flexible_key"`
+func TestGenerateMD2(t *testing.T) {
+	type WinFukaConfig struct {
+		Id             int       `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId         int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		MaxNum         int       `gorm:"column:max_num;default:" json:"max_num" form:"max_num"`
+		RandomRangeMin int       `gorm:"column:random_range_min;default:" json:"random_range_min" form:"random_range_min"`
+		RandomRangeMax int       `gorm:"column:random_range_max;default:" json:"random_range_max" form:"random_range_max"`
+		MaxTimes       int       `gorm:"column:max_times;default:" json:"max_times" form:"max_times"`
+		GoldRate       float64   `gorm:"column:gold_rate;default:" json:"gold_rate" form:"gold_rate"`
+		CreatedAt      time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
 	}
-	rs := GenerateMarkDown(DzpTask{}, map[string]interface{}{
-		"${model_chinese_name}": "九宫格任务",
+   
+	rs := GenerateMarkDown(WinFukaConfig{}, map[string]interface{}{
+		"${model_chinese_name}": "胜局福卡配置",
 		"${md_order}":           1,
 	})
 	fmt.Println(rs)

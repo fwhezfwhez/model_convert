@@ -204,6 +204,7 @@ func generateMDAdd(src interface{}, context ...map[string]interface{}) string {
 
 	rs := `
 ${H1} ${md_order}. ${model_chinese_name}增删改查(CRUD)，后台配置
+- 本文档由脚本自动生成，仅限制字段的命名和类型。具体限制，需要以实际为主。
 
 ${H2} ${md_order}.${sub_order} 新增${model_chinese_name}
 
