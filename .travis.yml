@@ -5,7 +5,7 @@ go:
   - 1.12.x
 
 env:
-  - GOARCH=amd64 CODECOV_TOKEN="7bc84064-5397-473d-991a-c34c91547e8a" GO111MODULE=off
+  - GOARCH=amd64 GO111MODULE=off # CODECOV_TOKEN="7bc84064-5397-473d-991a-c34c91547e8a" 
 
 sudo: true
 
@@ -18,11 +18,11 @@ before_install:
 
 script:
   # - go test -race -coverprofile=coverage.txt -covermode=atomic
-  - go test -coverprofile=coverage.txt -covermode=atomic
-  #  - go test ./
+  # - go test -coverprofile=coverage.txt -covermode=atomic
+  - go test ./
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  # - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email: false
