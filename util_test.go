@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/robfig/cron"
 )
@@ -15,7 +16,10 @@ func TestLowerFistLetter(t *testing.T) {
 	})
 	c.Start()
 
-	select {}
+	select {
+	case <-time.After(5 * time.Second):
+
+	}
 }
 
 func TestRandomNumber(t *testing.T) {
