@@ -121,27 +121,20 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type UserInfo struct {
-		Id                int       `gorm:"column:id;default:" json:"id" form:"id"`
-		UserId            int       `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
-		OpenId            string    `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
-		UnionId           string    `gorm:"column:union_id;default:" json:"union_id" form:"union_id"`
-		UserName          string    `gorm:"column:user_name;default:" json:"user_name" form:"user_name"`
-		HeaderUrl         string    `gorm:"column:header_url;default:" json:"header_url" form:"header_url"`
-		Sex               int       `gorm:"column:sex;default:" json:"sex" form:"sex"`
-		GameId            int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		LastLoginTime     time.Time `gorm:"column:last_login_time;default:" json:"last_login_time" form:"last_login_time"`
-		CreatedAt         time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		PlatformId        int       `gorm:"column:platform_id;default:" json:"platform_id" form:"platform_id"`
-		Channel           string    `gorm:"column:channel;default:" json:"channel" form:"channel"`
-		IsRobot           int       `gorm:"column:is_robot;default:" json:"is_robot" form:"is_robot"`
-		LastLastLoginTime time.Time `gorm:"column:last_last_login_time;default:" json:"last_last_login_time" form:"last_last_login_time"`
-		Phone             string    `gorm:"column:phone;default:" json:"phone" form:"phone"`
+	type CardLibrary struct {
+		Id         int             `gorm:"column:id;default:" json:"id" form:"id"`
+		Type       int             `gorm:"column:type;default:" json:"type" form:"type"`
+		Infomation string          `gorm:"column:infomation;default:" json:"infomation" form:"infomation"`
+		Cards      json.RawMessage `gorm:"column:cards;default:" json:"cards" form:"cards"`
+		Stat       bool            `gorm:"column:stat;default:" json:"stat" form:"stat"`
+		CreatedAt  time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+		ModifyAt   time.Time       `gorm:"column:modify_at;default:" json:"modify_at" form:"modify_at"`
+		IsDelete   bool            `gorm:"column:is_delete;default:" json:"is_delete" form:"is_delete"`
 	}
-	rs := GenerateCRUD(UserInfo{}, map[string]string{
-		"${generate_to_pkg}": "yindaoControl",
-		"${model}":           "yindaoModel.UserInfo",
-		"${handle_error}":    "common.SaveError(errorx.Wrap(e))",
+	rs := GenerateCRUD(CardLibrary{}, map[string]string{
+		"${generate_to_pkg}": "model",
+		"${model}":           "model.UserInfo",
+		"${handle_error}":    "fmt.Println(errorx.Wrap(e))",
 		"${db_instance}":     "db.DB",
 	})
 	_ = rs

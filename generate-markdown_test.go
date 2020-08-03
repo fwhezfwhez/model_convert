@@ -1,6 +1,7 @@
 package model_convert
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -98,18 +99,18 @@ func TestGenerateMGet(t *testing.T) {
 }
 
 func TestGenerateMD2(t *testing.T) {
-	type WinFukaConfig struct {
-		Id             int       `gorm:"column:id;default:" json:"id" form:"id"`
-		GameId         int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		MaxNum         int       `gorm:"column:max_num;default:" json:"max_num" form:"max_num"`
-		RandomRangeMin int       `gorm:"column:random_range_min;default:" json:"random_range_min" form:"random_range_min"`
-		RandomRangeMax int       `gorm:"column:random_range_max;default:" json:"random_range_max" form:"random_range_max"`
-		MaxTimes       int       `gorm:"column:max_times;default:" json:"max_times" form:"max_times"`
-		GoldRate       float64   `gorm:"column:gold_rate;default:" json:"gold_rate" form:"gold_rate"`
-		CreatedAt      time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+	type CardLibrary struct {
+		Id         int             `gorm:"column:id;default:" json:"id" form:"id"`
+		Type       int             `gorm:"column:type;default:" json:"type" form:"type"`
+		Infomation string          `gorm:"column:infomation;default:" json:"infomation" form:"infomation"`
+		Cards      json.RawMessage `gorm:"column:cards;default:" json:"cards" form:"cards"`
+		Stat       bool            `gorm:"column:stat;default:" json:"stat" form:"stat"`
+		CreatedAt  time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+		ModifyAt   time.Time       `gorm:"column:modify_at;default:" json:"modify_at" form:"modify_at"`
+		IsDelete   bool            `gorm:"column:is_delete;default:" json:"is_delete" form:"is_delete"`
 	}
-   
-	rs := GenerateMarkDown(WinFukaConfig{}, map[string]interface{}{
+
+	rs := GenerateMarkDown(CardLibrary{}, map[string]interface{}{
 		"${model_chinese_name}": "胜局福卡配置",
 		"${md_order}":           1,
 	})
