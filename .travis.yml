@@ -19,7 +19,7 @@ before_install:
 script:
   # - go test -race -coverprofile=coverage.txt -covermode=atomic
   # - go test -coverprofile=coverage.txt -covermode=atomic
-  - go test ./
+  - go test -run ^*_$
 
 after_success:
   # - bash <(curl -s https://codecov.io/bash)

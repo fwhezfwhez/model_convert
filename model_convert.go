@@ -213,10 +213,10 @@ func findPGColumns(dataSource string, tableName string) []Column {
 				SELECT 1 FROM pg_attrdef ad
              	WHERE  ad.adrelid = a.attrelid
              	AND    ad.adnum   = a.attnum
-             	AND    ad.adsrc = 'nextval('''
-                	|| (pg_get_serial_sequence (a.attrelid::regclass::text
-                	                          , a.attname))::regclass
-                	|| '''::regclass)'
+             	-- AND    ad.adsrc = 'nextval('''
+                --	|| (pg_get_serial_sequence (a.attrelid::regclass::text
+                --	                          , a.attname))::regclass
+                --	|| '''::regclass)'
              	)
             THEN CASE a.atttypid
                     WHEN 'int'::regtype  THEN 'serial'

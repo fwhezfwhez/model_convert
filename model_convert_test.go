@@ -59,14 +59,14 @@ func TestFindUpperIndex(t *testing.T) {
 //  generate model without model from database
 func TestTableToStruct(t *testing.T) {
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
-	tableName := "user_address"
+	tableName := "user_migrate_process"
 	fmt.Println(TableToStruct(dataSouce, tableName))
 }
 
 // generate model with json/form/gorm tag from database
 func TestTableToStructWithTag(t *testing.T) {
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
-	tableName := "card_library"
+	tableName := "show_config"
 	fmt.Println(TableToStructWithTag(dataSouce, tableName, "postgres"))
 }
 

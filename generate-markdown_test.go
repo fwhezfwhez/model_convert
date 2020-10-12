@@ -99,19 +99,16 @@ func TestGenerateMGet(t *testing.T) {
 }
 
 func TestGenerateMD2(t *testing.T) {
-	type CardLibrary struct {
-		Id         int             `gorm:"column:id;default:" json:"id" form:"id"`
-		Type       int             `gorm:"column:type;default:" json:"type" form:"type"`
-		Infomation string          `gorm:"column:infomation;default:" json:"infomation" form:"infomation"`
-		Cards      json.RawMessage `gorm:"column:cards;default:" json:"cards" form:"cards"`
-		Stat       bool            `gorm:"column:stat;default:" json:"stat" form:"stat"`
-		CreatedAt  time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		ModifyAt   time.Time       `gorm:"column:modify_at;default:" json:"modify_at" form:"modify_at"`
-		IsDelete   bool            `gorm:"column:is_delete;default:" json:"is_delete" form:"is_delete"`
+	type ShopInfo struct {
+		Id        int             `gorm:"column:id;default:" json:"id" form:"id"`
+		ShopKey   string          `gorm:"column:shop_key;default:" json:"shop_key" form:"shop_key"`
+		Title     string          `gorm:"column:title;default:" json:"title" form:"title"`
+		Data      json.RawMessage `gorm:"column:data;default:" json:"data" form:"data"`
+		CreatedAt time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
 	}
 
-	rs := GenerateMarkDown(CardLibrary{}, map[string]interface{}{
-		"${model_chinese_name}": "胜局福卡配置",
+	rs := GenerateMarkDown(ShopInfo{}, map[string]interface{}{
+		"${model_chinese_name}": "专题赛商店",
 		"${md_order}":           1,
 	})
 	fmt.Println(rs)
