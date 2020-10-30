@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/atotto/clipboard"
 )
 
 // GenerateListWhere requires a model and generate api codes to list the array of the model.
@@ -760,6 +762,9 @@ func GenerateCRUD(src interface{}, replacement ...map[string]string) string {
 
 	rs = fmt.Sprintf("%s%s  %s  %s  %s  %s  %s", note, addAPI, listAPI, getAPI, updateAPI, deleteAPI, profileCacheAPI)
 	rs = Format(rs)
+
+	// 注入剪贴板
+	clipboard.WriteAll(rs)
 	return rs
 }
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/atotto/clipboard"
 	"github.com/fwhezfwhez/errorx"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -287,6 +288,7 @@ func TableToStruct(dataSource string, tableName string, dialect ...string) strin
 
 // 数据库表转go model 带tag
 func TableToStructWithTag(dataSource string, tableName string, dialect ...string) string {
+
 	columnString := ""
 	tmp := ""
 
@@ -1059,6 +1061,9 @@ func (o *${structName}) ArrayGetFromRedisNoDecode(conn redis.Conn) (json.RawMess
 	extra = strings.Replace(extra, "${data_json_tag}", "`json:\"data\"`", -1)
 
 	rs := fmt.Sprintf("%stype %s struct{\n%s}\n\nfunc (o %s) TableName() string {\n    return \"%s\" \n}\n\n%s", prefix, UnderLineToHump(HumpToUnderLine(tableName)), columnString, UnderLineToHump(tableName), tableName, extra)
+
+	// 增加注入剪贴板
+	clipboard.WriteAll(rs)
 	return rs
 }
 
