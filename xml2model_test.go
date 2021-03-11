@@ -6,40 +6,34 @@ import (
 )
 
 func TestXMLToModel(t *testing.T) {
-	fmt.Println(233/100*100)
 	fmt.Println(XMLToModel(
 		`
-<xml> // 按照格式补充 
-
-<return_code><![CDATA[SUCCESS]]></return_code> 
-
-<return_msg><![CDATA[获取成功]]></return_msg> 
-
-<result_code><![CDATA[SUCCESS]]></result_code> 
-
-<mch_id>10000098</mch_id> 
-
-<appid><![CDATA[wxe062425f740c30d8]]></appid> 
-
-<detail_id><![CDATA[1000000000201503283103439304]]></detail_id> 
-
-<partner_trade_no><![CDATA[1000005901201407261446939628]]></partner_trade_no> 
-
-<status><![CDATA[SUCCESS]]></status>
-
-<payment_amount>650</payment_amount > 
-
-<openid ><![CDATA[oxTWIuGaIt6gTKsQRLau2M0yL16E]]></openid> 
-
-<transfer_time><![CDATA[2015-04-21 20:00:00]]></transfer_time>
-
-<transfer_name ><![CDATA[测试]]></transfer_name > 
-
-<desc><![CDATA[福利测试]]></desc> 
-
+<xml>
+  <appid>wx977a002bb48c6a90</appid>
+  <attach></attach>
+  <bank_type>OTHERS</bank_type>
+  <fee_type>CNY</fee_type>
+  <is_subscribe>N</is_subscribe>
+  <mch_id>1526815311</mch_id>
+  <nonce_str>apmpnGV8MBFQ3wIdB0ELa7DdubvbjHfI</nonce_str>
+  <openid>odOqR5kVI-z1D2xYzhDUJZWjQOrY</openid>
+  <out_trade_no>1608011847_33873189_9526</out_trade_no>
+  <result_code>SUCCESS</result_code>
+  <err_code></err_code>
+  <err_code_des></err_code_des>
+  <return_code>SUCCESS</return_code>
+  <return_msg></return_msg>
+  <sign>E53660B71468A6A3B2497EAF04AD1472</sign>
+  <time_end>20201215135733</time_end>
+  <total_fee>10</total_fee>
+  <coupon_fee></coupon_fee>
+  <coupon_count></coupon_count>
+  <coupon_type></coupon_type>
+  <coupon_id></coupon_id>
+  <trade_type>APP</trade_type>
+  <transaction_id>4200000793202012151699848322</transaction_id>
 </xml>
-
         `,
-		"VXResponse",
+		"NotifyRequest",
 	))
 }

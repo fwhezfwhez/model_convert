@@ -9,6 +9,15 @@ type GenerateGRPCInstanceArg struct {
 	PbPackagePath string
 }
 
+func GenerateGRPCInstanceV2(server RpcServer, packageName string, pbPackagePath string) string {
+	ss := server.String()
+	rs := GenerateGRPCInstance(ss, GenerateGRPCInstanceArg{
+		PbPackagePath: pbPackagePath,
+		PackageName:   packageName,
+	})
+	return rs
+}
+
 func GenerateGRPCInstance(src string, arg GenerateGRPCInstanceArg) string {
 	if arg.PackageName == "" {
 		arg.PackageName = "control"

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	errorx "github.com/fwhezfwhez/errorx"
+	"github.com/fwhezfwhez/errorx"
 
 	"github.com/shopspring/decimal"
 )
@@ -292,4 +292,20 @@ func Pick(rate float64) bool {
 	// n := r.Intn(int(num))
 	// return n < 1
 	return r.Float64() <= rate
+}
+
+func GetDefault(i string, dft string) string {
+	if i == "" {
+		return dft
+	}
+	return i
+}
+
+func replaceAll(tmpl string, r map[string]interface{}) string {
+	var rs string
+	for k, v := range r {
+		rs = strings.Replace(tmpl, k, fmt.Sprintf("%s", v), -1)
+		tmpl = rs
+	}
+	return rs
 }

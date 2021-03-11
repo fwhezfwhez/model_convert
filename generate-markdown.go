@@ -1,6 +1,7 @@
 package model_convert
 
 import (
+	"github.com/atotto/clipboard"
 	"strings"
 )
 
@@ -19,6 +20,8 @@ func GenerateMarkDown(src interface{}, context ...map[string]interface{}) string
 
 	rs = add + update + list + get + del
 
+
+	clipboard.WriteAll(rs)
 	return rs
 }
 

@@ -1,6 +1,7 @@
 package model_convert
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -66,8 +67,12 @@ func TestTableToStruct(t *testing.T) {
 // generate model with json/form/gorm tag from database
 func TestTableToStructWithTag(t *testing.T) {
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
-	tableName := "tomorrow_user_global_process"
-	fmt.Println(TableToStructWithTag(dataSouce, tableName, "postgres"))
+	tableName := "kvs"
+	fmt.Println(TableToStructWithTag(dataSouce, tableName, map[string]interface{}{
+		"dialect":            "postgres",
+		"${db_instance}":     "db.DB",
+		"${db_instance_pkg}": "shangraomajiang/util/db",
+	}))
 }
 
 // add json and form for a go model
@@ -93,5 +98,26 @@ func TestModelConvert_Generate(t *testing.T) {
 func TestTableToStructMysql(t *testing.T) {
 	dataSouce := "ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true"
 	tableName := "t_user"
-	fmt.Println(TableToStructWithTag(dataSouce, tableName, "mysql"))
+	fmt.Println(TableToStructWithTag(dataSouce, tableName, map[string]interface{}{
+		"dialect":            "postgres",
+		"${db_instance}":     "db.DB",
+		"${db_instance_pkg}": "shangraomajiang/util/db",
+	}))
+}
+
+func TestJSON(t *testing.T) {
+	var b = `
+{
+    "buf": "eyJnYW1lX2lkIjo3OCwidXNlcl9pZCI6MzYwNjEwNjZ9"
+}
+`
+	type B struct {
+		Buf []byte `json:"buf"`
+	}
+	var bu B
+	if e := json.Unmarshal([]byte(b), &bu); e != nil {
+		fmt.Println(e.Error())
+		return
+	}
+	fmt.Println(string(bu.Buf))
 }

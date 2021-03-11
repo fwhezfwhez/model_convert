@@ -121,21 +121,19 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type TomorrowUserGlobalProcess struct {
-		Id        int       `gorm:"column:id;default:" json:"id" form:"id"`
-		CreatedAt time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		UpdatedAt time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
-		GameId    int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		UserId    int       `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
-		OffsetDay int       `gorm:"column:offset_day;default:" json:"offset_day" form:"offset_day"`
-		StartAt   time.Time `gorm:"column:start_at;default:" json:"start_at" form:"start_at"`
+	type Kvs struct {
+		Id               int       `gorm:"column:id;default:" json:"id" form:"id"`
+		CreatedAt        time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+		UpdatedAt        time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
+		Key              string    `gorm:"column:key;default:" json:"key" form:"key"`
+		Value            string    `gorm:"column:value;default:" json:"value" form:"value"`
+		LastVersionValue string    `gorm:"column:last_version_value;default:" json:"last_version_value" form:"last_version_value"`
 	}
-
-	rs := GenerateCRUD(TomorrowUserGlobalProcess{}, map[string]string{
-		"${generate_to_pkg}": "mrylControl",
-		"${model}":           "mrylModel.TomorrowUserGlobalProcess",
+	rs := GenerateCRUD(Kvs{}, map[string]string{
+		"${generate_to_pkg}": "backendControl",
+		"${model}":           "backendModel.Kvs",
 		"${handle_error}":    "commonv2.SaveError(errorx.Wrap(e))",
-		"${db_instance}":     "db.DB",
+		"${db_instance}":     "(backendModel.Kvs{}).DB()",
 	})
 	_ = rs
 	fmt.Println(rs)

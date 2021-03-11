@@ -320,7 +320,13 @@ func SetProto%s(src ${model_pkg_name}.%s) ${pb_pkg_name}.%s {
 
 	var setM = fmt.Sprintf(SetM, vType.Name(), vType.Name(), vType.Name(), vType.Name(), line2)
 	var setP = fmt.Sprintf(SetP, vType.Name(), vType.Name(), vType.Name(), vType.Name(), line3)
-	var message = fmt.Sprintf(resultF, vType.Name(), middle)
+
+	var message string
+	if replacement[0]["${message_name}"] == "" {
+		message = fmt.Sprintf(resultF, vType.Name(), middle)
+	} else {
+		message = replacement[0]["${message_name}"]
+	}
 	return message, setM, setP
 }
 

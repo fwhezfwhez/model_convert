@@ -7,16 +7,42 @@ import (
 
 func TestGenerateGRPCInstance(t *testing.T) {
 	var src = `
-service UserChargeLog{
-    rpc GetUserChargeLog(ProMiniGameGetUserChargeLogRequest) returns (ProMiniGameGetUserChargeLogResponse) {}
-    rpc GetUserInfo(ProMiniGameGetUserInfoRequest) returns (ProMiniGameGetUserInfoResponse) {}
-    rpc GetUserCoin(ProMiniGameGetUserCoinRequest) returns (ProMiniGameGetUserCoinResponse) {}
+service UserCoin {
+    rpc GetUserInfo(GetUserInfoRequest) returns (UserInfo){}
 }
 `
+
+
 	rs := GenerateGRPCInstance(src, GenerateGRPCInstanceArg{
-		PbPackagePath: "project/control/statistics/statisticsPb",
-		PackageName:   "statisticsControl",
+		PbPackagePath: "shangraomajiang/control/user/userPb",
+		PackageName:   "userControl",
 	})
+
+	fmt.Println(rs)
+}
+
+func TestGenerateGRPCInstanceV2(t *testing.T) {
+	var si = ServiceItem{
+		MethodName:   "GetUserChargeLog",
+		RequestName:  "ProMiniGameGetUserChargeLogRequest",
+		ResponseName: "ProMiniGameGetUserInfoResponse",
+	}
+
+	var si2 = ServiceItem{
+		MethodName:   "GetUserInfo",
+		RequestName:  "ProMiniGameGetUserInfoRequest",
+		ResponseName: "ProMiniGameGetUserInfoResponse",
+	}
+
+	rpcServer := RpcServer{
+		ServiceName:  "UserChargeLog",
+		ServiceItems: []ServiceItem{si, si2},
+	}
+	rs := GenerateGRPCInstanceV2(
+		rpcServer,
+		"project/control/statistics/statisticsPb",
+		"statisticsControl",
+	)
 
 	fmt.Println(rs)
 }

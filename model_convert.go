@@ -286,16 +286,30 @@ func TableToStruct(dataSource string, tableName string, dialect ...string) strin
 	return rs
 }
 
+type TableToStructWithTagReplacement struct {
+	DBInstance    string
+	DBInstancePkg string
+}
+
+func (o *TableToStructWithTagReplacement) Init() {
+	o.DBInstance = "db.DB"
+	o.DBInstancePkg = "path/to/db"
+}
+
 // 数据库表转go model 带tag
-func TableToStructWithTag(dataSource string, tableName string, dialect ...string) string {
+// replacements 取值类型为 string 或者 map[string]interface{}
+// 取值为string时，replacements[0]为数据库类型,取值如postgres, mysql。并且，"postgres" 等价于map[string]interface{}{"dialect":"postgres"}
+// 取值map时，将可以附加一些参数
+func TableToStructWithTag(dataSource string, tableName string, replacements ...interface{}) string {
 
 	columnString := ""
 	tmp := ""
 
-	if len(dialect) == 0 {
-		dialect = []string{"postgres"}
-	}
-	columns := FindColumns(dialect[0], dataSource, tableName)
+	dialect := getDialect(replacements...)
+
+	ttswtr := fillTableToStructWithTagReplacement(replacements...)
+
+	columns := FindColumns(dialect, dataSource, tableName)
 	for _, column := range columns {
 
 		tmp = fmt.Sprintf("    %s  %s    `gorm:\"column:%s;default:\" json:\"%s\" form:\"%s\"`\n",
@@ -309,6 +323,7 @@ import (
 	"github.com/fwhezfwhez/errorx"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jinzhu/gorm"
+     "${db_instance_pkg}"
 	"io/ioutil"
 	"net/http"
 	"sync"
@@ -321,6 +336,7 @@ import (
       - github.com/fwhezfwhez/errorx
       - github.com/garyburd/redigo/redis
       - github.com/jinzhu/gorm
+      - ${db_instance_pkg}
     You can get them by:
       - go get github.com/fwhezfwhez/errorx
       - go get github.com/garyburd/redigo/redis
@@ -331,8 +347,13 @@ import (
       - RedisSecondDuration() int
 */
 `
+	prefix = strings.Replace(prefix, "${db_instance_pkg}", ttswtr.DBInstancePkg, -1)
 
 	var extra = `
+func (o ${structName}) DB() *gorm.DB {
+    return ${db_instance}
+}
+
 var ${structName}RedisKeyFormat = ""
 
 func (o ${structName}) RedisKey() string {
@@ -1056,6 +1077,9 @@ func (o *${structName}) ArrayGetFromRedisNoDecode(conn redis.Conn) (json.RawMess
 `
 
 	// extra = strings.ReplaceAll(extra,"${structName}", UnderLineToHump(HumpToUnderLine(tableName)))
+	extra = strings.Replace(extra, "${db_instance}", ttswtr.DBInstance, -1)
+	extra = strings.Replace(extra, "${db_instance_pkg}", ttswtr.DBInstancePkg, -1)
+
 	extra = strings.Replace(extra, "${structName}", UnderLineToHump(HumpToUnderLine(tableName)), -1)
 	extra = strings.Replace(extra, "${count_json_tag}", "`json:\"count\"`", -1)
 	extra = strings.Replace(extra, "${data_json_tag}", "`json:\"data\"`", -1)
@@ -1065,6 +1089,65 @@ func (o *${structName}) ArrayGetFromRedisNoDecode(conn redis.Conn) (json.RawMess
 	// 增加注入剪贴板
 	clipboard.WriteAll(rs)
 	return rs
+}
+
+func getDialect(replacements ...interface{}) string {
+	if len(replacements) == 0 {
+		return "postgres"
+	}
+
+	var replacementI interface{}
+	if len(replacements) == 1 {
+		dialect, convert := replacements[0].(string)
+		if convert {
+			return dialect
+		}
+	}
+
+	replacementI = replacements[0]
+
+	switch v := replacementI.(type) {
+	case map[string]interface{}:
+		dialect, exist := v["dialect"]
+		if exist {
+			dialectStr, assert := dialect.(string)
+			if assert {
+				return dialectStr
+			}
+			panic(fmt.Errorf("replacements[0]['dialect'] must be string type,but got %v", dialect))
+		} else {
+			return "postgres"
+		}
+	default:
+		panic(fmt.Errorf("replacements[0] only accepts string or map[string]interface{}"))
+	}
+}
+
+func fillTableToStructWithTagReplacement(replacements ...interface{}) TableToStructWithTagReplacement {
+	var ttstr TableToStructWithTagReplacement
+	ttstr.Init()
+
+	if len(replacements) == 0 {
+		return ttstr
+	}
+	replacement := replacements[0]
+
+	switch v := replacement.(type) {
+	case map[string]interface{}:
+		di, exist := v["${db_instance}"]
+		if exist {
+			ttstr.DBInstance = fmt.Sprintf("%v", di)
+		}
+		dip, exist := v["${db_instance_pkg}"]
+		if exist {
+			ttstr.DBInstancePkg = fmt.Sprintf("%v", dip)
+		}
+		return ttstr
+	case string:
+		return ttstr
+	default:
+		return ttstr
+	}
 }
 
 // UnderLineToHump 下划线转驼峰
@@ -1109,6 +1192,10 @@ func typeConvert(s string) string {
 		}
 		if in(s, []string{"bool", "boolean"}) {
 			return "bool"
+		}
+
+		if in(s, []string{"bigint[]"}) {
+			return "[]int64"
 		}
 	}
 	// mysql

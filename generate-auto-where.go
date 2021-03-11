@@ -279,7 +279,7 @@ func ${handler_name}(c *gin.Context) {
         return
     }
     var count int
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+    if e:= (${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
@@ -289,7 +289,7 @@ func ${handler_name}(c *gin.Context) {
         return
     }
     var instance ${model}
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).First(&instance).Error; e!=nil {
+    if e:=(${db_instance}.Model(&${model}{}).Where("id=?", id).First(&instance).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
@@ -331,7 +331,7 @@ func ${handler_name} (c *gin.Context) {
         return
     }
 
-    if e:=${db_instance}.Model(&${model}{}).Create(&param).Error; e!=nil {
+    if e:=(${db_instance}.Model(&${model}{}).Create(&param).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
@@ -380,7 +380,7 @@ func ${handler_name}(c *gin.Context) {
         return
     }
     var count int
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+    if e:=(${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
@@ -390,13 +390,13 @@ func ${handler_name}(c *gin.Context) {
         return
     }
     var instance ${model}
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).First(&instance).Error; e!=nil {
+    if e:=(${db_instance}.Model(&${model}{}).Where("id=?", idInt).First(&instance).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
     }    
     
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", id).Delete(&${model}{}).Error; e!=nil {
+    if e:=(${db_instance}.Model(&${model}{}).Where("id=?", id).Delete(&${model}{}).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
@@ -468,7 +468,7 @@ func ${handler_name}(c *gin.Context) {
         return
     }
     var count int
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error; e!=nil {
+    if e:=(${db_instance}.Model(&${model}{}).Where("id=?", idInt).Count(&count).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
@@ -487,7 +487,7 @@ func ${handler_name}(c *gin.Context) {
     ${args_forbid}
     
     var instance ${model}
-    if e:=${db_instance}.Model(&${model}{}).Where("id=?", idInt).First(&instance).Error; e!=nil {
+    if e:=(${db_instance}.Model(&${model}{}).Where("id=?", idInt).First(&instance).Error); e!=nil {
         ${handle_error}
         c.JSON(500, gin.H{"message": errorx.Wrap(e).Error()})
         return
