@@ -7,9 +7,8 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/fwhezfwhez/errorx"
+
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 const (
