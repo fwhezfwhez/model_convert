@@ -8,11 +8,7 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/fwhezfwhez/errorx"
 
-
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	_ "github.com/lib/pq"
 )
 
 const (
