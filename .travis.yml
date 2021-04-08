@@ -1,11 +1,11 @@
 language: go
 
 go:
-  - 1.9.x
   - 1.12.x
 
 env:
   - GOARCH=amd64 GO111MODULE=off # CODECOV_TOKEN="7bc84064-5397-473d-991a-c34c91547e8a" 
+  - GOARCH=amd64 GO111MODULE=on GOPROXY=https://goproxy.io
 
 sudo: true
 
@@ -17,9 +17,7 @@ before_install:
   - git clone -b v1.4.0 https://github.com/go-sql-driver/mysql.git ${GOPATH}/src/github.com/go-sql-driver/mysql
 
 script:
-  # - go test -race -coverprofile=coverage.txt -covermode=atomic
-  # - go test -coverprofile=coverage.txt -covermode=atomic
-  - go test -run ^*_$
+  - go test -run ^TestDone$
 
 after_success:
   # - bash <(curl -s https://codecov.io/bash)
