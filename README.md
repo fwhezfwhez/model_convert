@@ -42,7 +42,7 @@ Most cases are developing.However, only when specific requirements are met with,
 | usage | description | well practicing cases |
 | --- | -- | -- |
 | 1st-cache| Read from redis first, then access to db | All cases |
-|2nd-cache | Read from cmap | config-only|
+|2nd-cache | Read fro cmap, then redis, last db | config-only|
 
 ```go
 package main
