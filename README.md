@@ -11,6 +11,8 @@ model-convert is used for transfer all kinds of structs
 - [1. Start](#1-start)
 - [2. Stable cases](#2-stable-cases)
     - [2.1 Gorm-postgres/mysql table to model【supporting 1st-cache 2nd-cache】](#21-gorm-postgresmysql-table-to-modelsupporting-1st-cache-2nd-cache)
+      - [2.1.1 redis 1st-cache](#211-redis-1st-cache)
+      - [2.1.2 cmap 2st-cache](#212-cmap-2st-cache)
     - [2.2 Xml to go model](#22-xml-to-go-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
     - [2.4 Go model transfer to protobuf3](#24-go-model-transfer-to-protobuf3)
@@ -84,21 +86,38 @@ func (o UserInfo) TableName() string {
 }
 
 // ... strenthening list:
-// - 1.1st/2nd cache for single object/ objects array
+// - 1.redis 1st-cache
 // - 2.cmap 2nd-cache
 ```
-mysql
+
+##### 2.1.1 redis 1st-cache
+Using format below to design your model redis cache.
+
 ```go
-type TUser struct {
-	Attach    json.RawMessage `gorm:"column:attach;default:" json:"attach" form:"attach"`
-	CreatedAt time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-	Id        int             `gorm:"column:id;default:" json:"id" form:"id"`
-	Name      string          `gorm:"column:name;default:" json:"name" form:"name"`
+
+var UserInfoRedisKeyFormat = "app:user_info:%d:%d"
+
+func (o UserInfo) RedisKey() string {
+        return fmt.Sprintf(UserInfoRedisKeyFormat,o.GameId, o.UserId)
 }
 
-func (o TUser) TableName() string {
-	return "t_user"
+
+var ArrayUserInfoRedisKeyFormat = "app:user_infos:%d"
+
+func (o UserInfo) ArrayRedisKey() string {
+        return fmt.Sprintf(ArrayUserInfoRedisKeyFormat, o.GameId)
 }
+```
+
+##### 2.1.2 cmap 2st-cache
+Turn on switches of object and object-array. Suggest open it when model object is a config `O(a)`, and close it when object is a user process `O(n)`.
+By default all 2nd cache is off
+
+```go
+const (
+        UserInfoCacheSwitch = false
+        ArrayUserInfoCacheSwitch = false
+)
 ```
 
 #### 2.2 Xml to go model
