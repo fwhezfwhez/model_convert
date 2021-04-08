@@ -10,8 +10,8 @@ model-convert is used for transfer all kinds of structs
 - [Declaration](#declaration)
 - [1. Start](#1-start)
 - [2. Stable cases](#2-stable-cases)
-    - [2.1 Xml to go model](#21-xml-to-go-model)
-    - [2.2 Gorm-postgres/mysql table to model](#22-gorm-postgresmysql-table-to-model)
+    - [2.1 Gorm-postgres/mysql table to model](#21-gorm-postgresmysql-table-to-model)
+    - [2.2 Xml to go model](#22-xml-to-go-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
     - [2.4 Go model transfer to protobuf3](#24-go-model-transfer-to-protobuf3)
     - [2.5 Http restful api](#25-http-restful-api)
@@ -21,6 +21,8 @@ model-convert is used for transfer all kinds of structs
         - [2.5.4 delete-one](#254-delete-one)
         - [2.5.5 update-one](#255-update-one)
         - [2.5.6 generate crud](#256-generate-crud)
+    - [2.6 grpc](#26-grpc)
+      - [2.6.1 grpc-proto-service to go model](#261-grpc-proto-service-to-go-model)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -35,7 +37,84 @@ model-convert is used for transfer all kinds of structs
 ## 2. Stable cases
 Most cases are developing.However, only when specific requirements are met with, I will upgrade requiring functions. Here are stable use cases, it will be taken care of when project are updating.
 
-#### 2.1 Xml to go model
+#### 2.1 Gorm-postgres/mysql table to model
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/fwhezfwhez/model_convert"
+)
+
+func main() {
+    // postgres
+    dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
+    tableName := "user_info"
+    fmt.Println(model_convert.TableToStructWithTag(dataSouce, tableName, "postgres"))
+
+    // mysql
+    // dataSouce = "ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true"
+    // tableName = "t_user"
+    // fmt.Println(mc.TableToStructWithTag(dataSouce, tableName, "mysql"))
+}
+```
+output:
+
+postgres
+```
+type UserInfo struct {
+    Id        int    `gorm:"column:id;default:" json:"id" form:"id"`
+    UserId    int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+    OpenId    string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
+    UnionId   string `gorm:"column:union_id;default:" json:"union_id" form:"union_id"`
+    UserName  string `gorm:"column:user_name;default:" json:"user_name" form:"user_name"`
+    HeaderUrl string `gorm:"column:header_url;default:" json:"header_url" form:"header_url"`
+    Sex       int    `gorm:"column:sex;default:" json:"sex" form:"sex"`
+    GameId    int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+}
+
+func (o UserInfo) TableName() string {
+    return "user_info"
+}
+
+// ... strenthening list:
+// - 1.1st/2nd cache for single object/ objects array
+var UserInfoRedisKeyFormat = ""
+
+func (o UserInfo) RedisKey() string {
+        // TODO set its redis key and required args
+        return fmt.Sprintf(UserInfoRedisKeyFormat, )
+}
+
+
+var ArrayUserInfoRedisKeyFormat = ""
+
+func (o UserInfo) ArrayRedisKey() string {
+        // TODO set its array key and required args
+        return fmt.Sprintf(ArrayUserInfoRedisKeyFormat,)
+}
+// - 2.cmap 2nd-cache
+const (
+        UserInfoCacheSwitch = false
+        ArrayUserInfoCacheSwitch = false
+)
+```
+mysql
+```go
+type TUser struct {
+	Attach    json.RawMessage `gorm:"column:attach;default:" json:"attach" form:"attach"`
+	CreatedAt time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+	Id        int             `gorm:"column:id;default:" json:"id" form:"id"`
+	Name      string          `gorm:"column:name;default:" json:"name" form:"name"`
+}
+
+func (o TUser) TableName() string {
+	return "t_user"
+}
+```
+
+#### 2.2 Xml to go model
 ```go
 package main
 
@@ -70,59 +149,6 @@ type MessageInfo struct{
 }
 ```
 
-#### 2.2 Gorm-postgres/mysql table to model
-
-```go
-package main
-
-import (
-    "fmt"
-    "github.com/fwhezfwhez/model_convert"
-)
-
-func main() {
-    // postgres
-    dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
-    tableName := "user_info"
-    fmt.Println(model_convert.TableToStructWithTag(dataSouce, tableName, "postgres"))
-
-    // mysql
-    // dataSouce = "ft:123@/test?charset=utf8&parseTime=True&loc=Local&allowNativePasswords=true"
-    // tableName = "t_user"
-    // fmt.Println(mc.TableToStructWithTag(dataSouce, tableName, "mysql"))
-}
-```
-output:
-postgres
-```
-type UserInfo struct {
-    Id        int    `gorm:"column:id;default:" json:"id" form:"id"`
-    UserId    int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
-    OpenId    string `gorm:"column:open_id;default:" json:"open_id" form:"open_id"`
-    UnionId   string `gorm:"column:union_id;default:" json:"union_id" form:"union_id"`
-    UserName  string `gorm:"column:user_name;default:" json:"user_name" form:"user_name"`
-    HeaderUrl string `gorm:"column:header_url;default:" json:"header_url" form:"header_url"`
-    Sex       int    `gorm:"column:sex;default:" json:"sex" form:"sex"`
-    GameId    int    `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-}
-
-func (o UserInfo) TableName() string {
-    return "user_info"
-}
-```
-mysql
-```go
-type TUser struct {
-	Attach    json.RawMessage `gorm:"column:attach;default:" json:"attach" form:"attach"`
-	CreatedAt time.Time       `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-	Id        int             `gorm:"column:id;default:" json:"id" form:"id"`
-	Name      string          `gorm:"column:name;default:" json:"name" form:"name"`
-}
-
-func (o TUser) TableName() string {
-	return "t_user"
-}
-```
 #### 2.3 Add json,form tag for go model
 Only support under-line style `AaBb -> aa_bb`
 ```go
