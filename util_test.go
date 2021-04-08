@@ -9,6 +9,10 @@ import (
 	"github.com/robfig/cron"
 )
 
+func TestDone(t *testing.T) {
+	fmt.Println("done")
+}
+
 func TestLowerFistLetter(t *testing.T) {
 	c := cron.New()
 	c.AddFunc("* * * ? * 1", func() {

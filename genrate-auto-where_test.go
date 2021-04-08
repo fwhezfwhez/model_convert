@@ -130,10 +130,10 @@ func TestGenerateCRUD(t *testing.T) {
 		LastVersionValue string    `gorm:"column:last_version_value;default:" json:"last_version_value" form:"last_version_value"`
 	}
 	rs := GenerateCRUD(Kvs{}, map[string]string{
-		"${generate_to_pkg}": "backendControl",
-		"${model}":           "backendModel.Kvs",
+		"${generate_to_pkg}": "ukControl",
+		"${model}":           "ukModel.Kvs",
 		"${handle_error}":    "commonv2.SaveError(errorx.Wrap(e))",
-		"${db_instance}":     "(backendModel.Kvs{}).DB()",
+		"${db_instance}":     "(ukModel.Kvs{}).DB()",
 	})
 	_ = rs
 	fmt.Println(rs)

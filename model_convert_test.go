@@ -67,7 +67,7 @@ func TestTableToStruct(t *testing.T) {
 // generate model with json/form/gorm tag from database
 func TestTableToStructWithTag(t *testing.T) {
 	dataSouce := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", "localhost", "5432", "postgres", "game", "disable", "123")
-	tableName := "kvs"
+	tableName := "user_info"
 	fmt.Println(TableToStructWithTag(dataSouce, tableName, map[string]interface{}{
 		"dialect":            "postgres",
 		"${db_instance}":     "db.DB",
