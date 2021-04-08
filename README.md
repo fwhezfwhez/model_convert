@@ -10,7 +10,7 @@ model-convert is used for transfer all kinds of structs
 - [Declaration](#declaration)
 - [1. Start](#1-start)
 - [2. Stable cases](#2-stable-cases)
-    - [2.1 Gorm-postgres/mysql table to model](#21-gorm-postgresmysql-table-to-model)
+    - [2.1 Gorm-postgres/mysql table to model【supporting 1st-cache 2nd-cache】](#21-gorm-postgresmysql-table-to-modelsupporting-1st-cache-2nd-cache)
     - [2.2 Xml to go model](#22-xml-to-go-model)
     - [2.3 Add json,form tag for go model](#23-add-jsonform-tag-for-go-model)
     - [2.4 Go model transfer to protobuf3](#24-go-model-transfer-to-protobuf3)
@@ -37,7 +37,12 @@ model-convert is used for transfer all kinds of structs
 ## 2. Stable cases
 Most cases are developing.However, only when specific requirements are met with, I will upgrade requiring functions. Here are stable use cases, it will be taken care of when project are updating.
 
-#### 2.1 Gorm-postgres/mysql table to model
+#### 2.1 Gorm-postgres/mysql table to model【supporting 1st-cache 2nd-cache】
+
+| usage | description | well practicing cases |
+| --- | -- | -- |
+| 1st-cache| Read from redis first, then access to db | All cases |
+|2nd-cache | Read from cmap | config-only|
 
 ```go
 package main
@@ -62,7 +67,7 @@ func main() {
 output:
 
 postgres
-```
+```go
 type UserInfo struct {
     Id        int    `gorm:"column:id;default:" json:"id" form:"id"`
     UserId    int    `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
@@ -80,25 +85,7 @@ func (o UserInfo) TableName() string {
 
 // ... strenthening list:
 // - 1.1st/2nd cache for single object/ objects array
-var UserInfoRedisKeyFormat = ""
-
-func (o UserInfo) RedisKey() string {
-        // TODO set its redis key and required args
-        return fmt.Sprintf(UserInfoRedisKeyFormat, )
-}
-
-
-var ArrayUserInfoRedisKeyFormat = ""
-
-func (o UserInfo) ArrayRedisKey() string {
-        // TODO set its array key and required args
-        return fmt.Sprintf(ArrayUserInfoRedisKeyFormat,)
-}
 // - 2.cmap 2nd-cache
-const (
-        UserInfoCacheSwitch = false
-        ArrayUserInfoCacheSwitch = false
-)
 ```
 mysql
 ```go
