@@ -703,7 +703,7 @@ func (o ${structName}) DumpToLocal(url string,engine *gorm.DB, mode int) error {
 
 // self Header
 var (
-	${structName}Cache         = cmap.NewMapV2(nil, 8, time.Second*60)
+	${structName}Cache         *cmap.MapV2
 
 	${structName}NotFoundErr  = fmt.Errorf("not found in cache")
 	${structName}SwitchOffErr = fmt.Errorf("2nd-cache switch is off")
@@ -749,11 +749,22 @@ func (o *${structName}) syncToCache() {
 
 // array Header
 var (
-	Array${structName}Cache         = cmap.NewMapV2(nil, 8, time.Second*60)
+	Array${structName}Cache   *cmap.MapV2
 	
 	Array${structName}NotFoundErr  = fmt.Errorf("not found in cache")
 	Array${structName}SwitchOffErr = fmt.Errorf("2nd-cache switch is off")
 )
+
+func init() {
+	if ${structName}CacheSwitch {
+		${structName}Cache = cmap.NewMapV2(nil, 8, time.Second*60)
+	}
+
+	if Array${structName}CacheSwitch {
+		Array${structName}Cache = cmap.NewMapV2(nil, 8, time.Second*60)
+	}
+}
+
 
 
 func (o *${structName}) ArrayGetFromCache() ([]${structName}, error) {
