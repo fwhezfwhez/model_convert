@@ -109,18 +109,16 @@ func TestGenerateMGet(t *testing.T) {
 }
 
 func TestGenerateMD2(t *testing.T) {
-	type ShopPropBackupRecord struct {
-		Id          int       `gorm:"column:id;default:" json:"id" form:"id"`
-		CreatedAt   time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		UpdatedAt   time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
-		ItemKey     string    `gorm:"column:item_key;default:" json:"item_key" form:"item_key"`
-		Decription  string    `gorm:"column:decription;default:" json:"decription" form:"decription"`
-		Title       string    `gorm:"column:title;default:" json:"title" form:"title"`
-		DailyNum    int       `gorm:"column:daily_num;default:" json:"daily_num" form:"daily_num"`
-		LifetimeNum int       `gorm:"column:lifetime_num;default:" json:"lifetime_num" form:"lifetime_num"`
+	type PropTagConfig struct {
+		Id        int       `gorm:"column:id;default:" json:"id" form:"id"`
+		UpdatedAt time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
+		CreatedAt time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+		PropTag   string    `gorm:"column:prop_tag;default:" json:"prop_tag" form:"prop_tag"`
+		GameId    int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		Title     string    `gorm:"column:title;default:" json:"title" form:"title"`
 	}
-	rs := GenerateMarkDown(ShopPropBackupRecord{}, map[string]interface{}{
-		"${model_chinese_name}": "库存信息",
+	rs := GenerateMarkDown(PropTagConfig{}, map[string]interface{}{
+		"${model_chinese_name}": "prop_tag配置枚举",
 		"${md_order}":           1,
 	})
 	fmt.Println(rs)

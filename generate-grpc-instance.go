@@ -111,7 +111,7 @@ package ${package_name}
 import (
 	"context"
 	// "github.com/fwhezfwhez/errorx"
-	// "golang.org/x/protobuf/proto"
+	// "github.com/golang/protobuf/proto"
 	"${pb_package_path}"
 )
 

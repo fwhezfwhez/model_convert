@@ -931,3 +931,67 @@ func (o *UserChargeLog) GetUserCoin(ctx context.Context, param *statisticsPb.Pro
 	return rsp, nil
 }
 ```
+
+#### 2.7 sql annotation
+##### 2.7.1 postgres
+```main
+package main
+
+import (
+	"fmt"
+	"github.com/fwhezfwhez/model_convert"
+)
+
+func main() {
+	sql := `
+create table sql_generate_note(
+   id serial primary key,                                  -- 自增id，主键
+   updated_at timestamp with time zone default now(),      -- 更新于，
+   created_at timestamp with time zone default now(),      -- 创建于
+
+   -- 用户id
+   user_id integer,
+
+   -- 平台id
+   -- 游戏id
+   game_id integer,
+
+   -- 包渠道1
+   -- 包渠道2
+   app_channel varchar -- 包渠道3
+)
+`
+
+	rs := model_convert.GenerateNote(sql)
+
+	fmt.Println(rs)
+}
+```
+
+Output:
+```sql
+create table sql_generate_note(
+   id serial primary key,                                  -- 自增id，主键
+   updated_at timestamp with time zone default now(),      -- 更新于，
+   created_at timestamp with time zone default now(),      -- 创建于
+
+   -- 用户id
+   user_id integer,
+
+   -- 平台id
+   -- 游戏id
+   game_id integer,
+
+   -- 包渠道1
+   -- 包渠道2
+   app_channel varchar -- 包渠道3
+)
+
+;
+comment on column sql_generate_note.id is ' 自增id，主键';
+comment on column sql_generate_note.updated_at is ' 更新于，';
+comment on column sql_generate_note.created_at is ' 创建于';
+comment on column sql_generate_note.user_id is ' 用户id';
+comment on column sql_generate_note.game_id is ' 平台id, 游戏id';
+comment on column sql_generate_note.app_channel is ' 包渠道1, 包渠道2, 包渠道3';
+```

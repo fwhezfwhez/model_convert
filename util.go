@@ -309,3 +309,9 @@ func replaceAll(tmpl string, r map[string]interface{}) string {
 	}
 	return rs
 }
+
+func TrimLine(line string) string {
+	line = strings.TrimSpace(line)
+	line = strings.Trim(line, "\t")
+	return line
+}

@@ -121,19 +121,20 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type Kvs struct {
-		Id               int       `gorm:"column:id;default:" json:"id" form:"id"`
-		CreatedAt        time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		UpdatedAt        time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
-		Key              string    `gorm:"column:key;default:" json:"key" form:"key"`
-		Value            string    `gorm:"column:value;default:" json:"value" form:"value"`
-		LastVersionValue string    `gorm:"column:last_version_value;default:" json:"last_version_value" form:"last_version_value"`
+	type PropTagConfig struct {
+		Id        int       `gorm:"column:id;default:" json:"id" form:"id"`
+		UpdatedAt time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
+		CreatedAt time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
+		PropTag   string    `gorm:"column:prop_tag;default:" json:"prop_tag" form:"prop_tag"`
+		GameId    int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		Title     string    `gorm:"column:title;default:" json:"title" form:"title"`
 	}
-	rs := GenerateCRUD(Kvs{}, map[string]string{
-		"${generate_to_pkg}": "ukControl",
-		"${model}":           "ukModel.Kvs",
-		"${handle_error}":    "commonv2.SaveError(errorx.Wrap(e))",
-		"${db_instance}":     "(ukModel.Kvs{}).DB()",
+
+	rs := GenerateCRUD(PropTagConfig{}, map[string]string{
+		"${generate_to_pkg}": "shopControl",
+		"${model}":           "shopModel.PropTagConfig",
+		"${handle_error}":    "shopUtil.SaveError(errorx.Wrap(e))",
+		"${db_instance}":     "(shopModel.PropTagConfig{}).DB()",
 	})
 	_ = rs
 	fmt.Println(rs)

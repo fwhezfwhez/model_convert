@@ -7,15 +7,14 @@ import (
 
 func TestGenerateGRPCInstance(t *testing.T) {
 	var src = `
-service UserCoin {
-    rpc GetUserInfo(GetUserInfoRequest) returns (UserInfo){}
-}
+	service ChangeMatchService{
+		rpc GetUserChangeMatchStatus(ChaneMatchUserStatusReq) returns (ChaneMatchUserStatusResp){}
+	}
 `
 
-
 	rs := GenerateGRPCInstance(src, GenerateGRPCInstanceArg{
-		PbPackagePath: "shangraomajiang/control/user/userPb",
-		PackageName:   "userControl",
+		PbPackagePath: "path/to/challengePb",
+		PackageName:   "packageaname",
 	})
 
 	fmt.Println(rs)
