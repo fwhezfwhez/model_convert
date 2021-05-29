@@ -89,10 +89,25 @@ func generateSqlNotes(sql string) string {
 		}
 
 		if fieldFlag != "" {
-			fields = append(fields, Field{
+
+			field := Field{
 				FieldName: fieldFlag,
 				Note:      sumnotes,
-			})
+			}
+
+			if len(sumnotes) == 0 && field.FieldName=="updated_at" {
+				sumnotes = append(sumnotes, "更新于")
+			}
+
+			if len(sumnotes) == 0 && field.FieldName=="created_at" {
+				sumnotes = append(sumnotes, "创建于")
+			}
+
+			if len(sumnotes) == 0 && field.FieldName=="id" {
+				sumnotes = append(sumnotes, "id,主键")
+			}
+
+			fields = append(fields, field)
 
 			sumnotes = nil
 			fieldFlag = ""
