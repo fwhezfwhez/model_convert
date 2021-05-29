@@ -25,6 +25,8 @@ model-convert is used for transfer all kinds of structs
         - [2.5.6 generate crud](#256-generate-crud)
     - [2.6 grpc](#26-grpc)
       - [2.6.1 grpc-proto-service to go model](#261-grpc-proto-service-to-go-model)
+    - [2.7 sql annotation](#27-sql-annotation)
+      - [2.7.1 postgres](#271-postgres)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
