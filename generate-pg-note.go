@@ -96,15 +96,15 @@ func generateSqlNotes(sql string) string {
 			}
 
 			if len(sumnotes) == 0 && field.FieldName=="updated_at" {
-				sumnotes = append(sumnotes, "更新于")
+				field.Note= append(sumnotes, "更新于")
 			}
 
 			if len(sumnotes) == 0 && field.FieldName=="created_at" {
-				sumnotes = append(sumnotes, "创建于")
+				field.Note=  append(sumnotes, "创建于")
 			}
 
 			if len(sumnotes) == 0 && field.FieldName=="id" {
-				sumnotes = append(sumnotes, "id,主键")
+				field.Note= append(sumnotes, "id,主键")
 			}
 
 			fields = append(fields, field)
