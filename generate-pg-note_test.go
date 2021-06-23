@@ -11,21 +11,17 @@ func TestGeneratePgNote(t *testing.T) {
 	fmt.Println(line[strings.Index(line, "//")+len("//"):])
 
 	sql := `
-create table sql_generate_note(
-   id serial primary key,                                  -- 自增id，主键
-   updated_at timestamp with time zone default now(),      
-   created_at timestamp with time zone default now(),      -- 创建于
+create table app_share_user_process(
+   id serial primary key,
+   created_at timestamp with time zone default now(),
+   updated_at timestamp with time zone default now(),
+  
+   app_channel varchar,      -- 包渠道
+   game_id integer,          -- 平台id
+   user_id integer,          -- 用户id
+   share_key varchar,        -- 分享活动key
    
-   -- 用户id
-   user_id integer,
-   
-   -- 平台id
-   -- 游戏id
-   game_id integer,
-   
-   -- 包渠道1
-   -- 包渠道2
-   app_channel varchar -- 包渠道3
+   qrcode_url varchar -- 二维码链接
 )
 `
 
