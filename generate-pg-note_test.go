@@ -2,27 +2,26 @@ package model_convert
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 )
 
 func TestGeneratePgNote(t *testing.T) {
-	var line = "//abcdefghijk"
-	fmt.Println(line[strings.Index(line, "//")+len("//"):])
 
 	sql := `
-create table app_share_user_process(
-   id serial primary key,
-   created_at timestamp with time zone default now(),
-   updated_at timestamp with time zone default now(),
+create table union_config(
+    id serial primary key,
+    game_id integer not null default 0,
+    union_id integer not null default 0,
+    
+    is_free integer NOT NULL DEFAULT 1, --竞技赛是否免费,1不免费、2免费
+    free_desk_num integer not null default 1, -- 免费空桌子数
+    empty_desk_num integer not null default 1, -- 客户端视角展示的最大空桌子数  
   
-   app_channel varchar,      -- 包渠道
-   game_id integer,          -- 平台id
-   user_id integer,          -- 用户id
-   share_key varchar,        -- 分享活动key
-   
-   qrcode_url varchar -- 二维码链接
-)
+    created_at timestamp with time zone default now(),
+    updated_at timestamp with time zone default now(),
+  
+    unique(game_id, union_id)
+);
 `
 
 	rs := GenerateNote(sql)

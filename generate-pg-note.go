@@ -52,6 +52,10 @@ func generateSqlNotes(sql string) string {
 			continue
 		}
 
+		if strings.Contains(line, "unique") {
+			continue
+		}
+
 		if strings.Contains(line, "create table") {
 
 			tmp := strings.TrimPrefix(line, "create table")
@@ -95,16 +99,23 @@ func generateSqlNotes(sql string) string {
 				Note:      sumnotes,
 			}
 
-			if len(sumnotes) == 0 && field.FieldName=="updated_at" {
-				field.Note= append(sumnotes, "更新于")
+			if len(sumnotes) == 0 && field.FieldName == "updated_at" {
+				field.Note = append(sumnotes, "更新于")
+			}
+			if len(sumnotes) == 0 && field.FieldName == "game_id" {
+				field.Note = append(sumnotes, "平台id")
 			}
 
-			if len(sumnotes) == 0 && field.FieldName=="created_at" {
-				field.Note=  append(sumnotes, "创建于")
+			if len(sumnotes) == 0 && field.FieldName == "user_id" {
+				field.Note = append(sumnotes, "用户id")
 			}
 
-			if len(sumnotes) == 0 && field.FieldName=="id" {
-				field.Note= append(sumnotes, "id,主键")
+			if len(sumnotes) == 0 && field.FieldName == "created_at" {
+				field.Note = append(sumnotes, "创建于")
+			}
+
+			if len(sumnotes) == 0 && field.FieldName == "id" {
+				field.Note = append(sumnotes, "id,主键")
 			}
 
 			fields = append(fields, field)

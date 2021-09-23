@@ -121,20 +121,18 @@ func TestGenerateUpdateOneAPI(t *testing.T) {
 
 // TODO: 增加缓存CRUD支持
 func TestGenerateCRUD(t *testing.T) {
-	type PropTagConfig struct {
+	type FragmentGroup struct {
 		Id        int       `gorm:"column:id;default:" json:"id" form:"id"`
 		UpdatedAt time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
 		CreatedAt time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		PropTag   string    `gorm:"column:prop_tag;default:" json:"prop_tag" form:"prop_tag"`
-		GameId    int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		Title     string    `gorm:"column:title;default:" json:"title" form:"title"`
+		GroupKey  string    `gorm:"column:group_key;default:" json:"group_key" form:"group_key"`
+		GroupDesc string    `gorm:"column:group_desc;default:" json:"group_desc" form:"group_desc"`
 	}
-
-	rs := GenerateCRUD(PropTagConfig{}, map[string]string{
+	rs := GenerateCRUDV2(FragmentGroup{}, map[string]string{
 		"${generate_to_pkg}": "shopControl",
-		"${model}":           "shopModel.PropTagConfig",
+		"${model}":           "shopModel.FragmentGroup",
 		"${handle_error}":    "shopUtil.SaveError(errorx.Wrap(e))",
-		"${db_instance}":     "(shopModel.PropTagConfig{}).DB()",
+		"${db_instance}":     "(shopModel.FragmentGroup{}).DB()",
 	})
 	_ = rs
 	fmt.Println(rs)
