@@ -1,36 +1,26 @@
 package model_convert
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
 )
 
 func TestGenerateMDAdd(t *testing.T) {
-	type CashToHuafeiRecord struct {
-		Id     int `gorm:"column:id;default:" json:"id" form:"id"`
-		GameId int `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		UserId int `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
-
-		Os         string `gorm:"column:os;default:" json:"os" form:"os"`
-		AppChannel string `gorm:"column:app_channel;default:" json:"app_channel" form:"app_channel"`
-		PlatformId int    `gorm:"column:platform_id;default:" json:"platform_id" form:"platform_id"`
-
-		Phone    string `gorm:"column:phone;default:" json:"phone" form:"phone"`
-		Realname string `gorm:"column:realname;default:" json:"realname" form:"realname"`
-
-		OpType        string    `gorm:"column:op_type;default:" json:"op_type" form:"op_type"`
-		Description   string    `gorm:"column:description;default:" json:"description" form:"description"`
-		BalanceAmount int       `gorm:"column:balance_amount;default:" json:"balance_amount" form:"balance_amount"`
-		HuafeiAmount  int       `gorm:"column:huafei_amount;default:" json:"huafei_amount" form:"huafei_amount"`
-		HasHandled    int       `gorm:"column:has_handled;default:" json:"has_handled" form:"has_handled"`
-		HandleAt      time.Time `gorm:"column:handle_at;default:" json:"handle_at" form:"handle_at"`
-		CreatedAt     time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		UpdatedAt     time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
+	type ResendRecord struct {
+		Id         int             `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId     int             `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		GameAreaId int             `gorm:"column:game_area_id;default:" json:"game_area_id" form:"game_area_id"`
+		UserId     int             `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		PropId     int             `gorm:"column:prop_id;default:" json:"prop_id" form:"prop_id"`
+		PropNum    int             `gorm:"column:prop_num;default:" json:"prop_num" form:"prop_num"`
+		ExpireIn   int             `gorm:"column:expire_in;default:" json:"expire_in" form:"expire_in"`
+		Raw        json.RawMessage `gorm:"column:raw;default:" json:"raw" form:"raw"`
 	}
-	rs := generateMDAdd(CashToHuafeiRecord{}, map[string]interface{}{
-		"${model_chinese_name}": "余额提现话费记录",
-		"${md_order}":           1,
+	rs := generateMDAdd(ResendRecord{}, map[string]interface{}{
+		"${model_chinese_name}": "补单记录",
+		"${md_order}":           2,
 	})
 	fmt.Println(rs)
 }
@@ -54,19 +44,18 @@ func TestGenerateMDUpdate(t *testing.T) {
 }
 
 func TestGenerateMDList(t *testing.T) {
-	type DzpTaskUnion struct {
-		Id            int    `gorm:"column:id;default:" json:"id" form:"id"`
-		TaskUnionId   int    `gorm:"column:task_union_id;default:" json:"task_union_id" form:"task_union_id"`
-		Description   string `gorm:"column:description;default:" json:"description" form:"description"`
-		OsDescription string `gorm:"column:os_description;default:" json:"os_description" form:"os_description"`
-
-		State     int    `gorm:"column:state;default:" json:"state" form:"state"`
-		TaskTimes int    `gorm:"column:task_times;default:" json:"task_times" form:"task_times"`
-		RefreshAt string `gorm:"column:refresh_at;default:" json:"refresh_at" form:"refresh_at"`
+	type ResendRecord struct {
+		Id         int             `gorm:"column:id;default:" json:"id" form:"id"`
+		GameId     int             `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
+		GameAreaId int             `gorm:"column:game_area_id;default:" json:"game_area_id" form:"game_area_id"`
+		UserId     int             `gorm:"column:user_id;default:" json:"user_id" form:"user_id"`
+		PropId     int             `gorm:"column:prop_id;default:" json:"prop_id" form:"prop_id"`
+		PropNum    int             `gorm:"column:prop_num;default:" json:"prop_num" form:"prop_num"`
+		ExpireIn   int             `gorm:"column:expire_in;default:" json:"expire_in" form:"expire_in"`
+		Raw        json.RawMessage `gorm:"column:raw;default:" json:"raw" form:"raw"`
 	}
-
-	rs := generateMDList(DzpTaskUnion{}, map[string]interface{}{
-		"${model_chinese_name}": "任务池",
+	rs := generateMDList(ResendRecord{}, map[string]interface{}{
+		"${model_chinese_name}": "补发记录",
 		"${md_order}":           2,
 	})
 	fmt.Println(rs)
@@ -109,16 +98,15 @@ func TestGenerateMGet(t *testing.T) {
 }
 
 func TestGenerateMD2(t *testing.T) {
-	type PropTagConfig struct {
+	type FragmentGroup struct {
 		Id        int       `gorm:"column:id;default:" json:"id" form:"id"`
 		UpdatedAt time.Time `gorm:"column:updated_at;default:" json:"updated_at" form:"updated_at"`
 		CreatedAt time.Time `gorm:"column:created_at;default:" json:"created_at" form:"created_at"`
-		PropTag   string    `gorm:"column:prop_tag;default:" json:"prop_tag" form:"prop_tag"`
-		GameId    int       `gorm:"column:game_id;default:" json:"game_id" form:"game_id"`
-		Title     string    `gorm:"column:title;default:" json:"title" form:"title"`
+		GroupKey  string    `gorm:"column:group_key;default:" json:"group_key" form:"group_key"`
+		GroupDesc string    `gorm:"column:group_desc;default:" json:"group_desc" form:"group_desc"`
 	}
-	rs := GenerateMarkDown(PropTagConfig{}, map[string]interface{}{
-		"${model_chinese_name}": "prop_tag配置枚举",
+	rs := GenerateMarkDown(FragmentGroup{}, map[string]interface{}{
+		"${model_chinese_name}": "碎片道具组",
 		"${md_order}":           1,
 	})
 	fmt.Println(rs)
